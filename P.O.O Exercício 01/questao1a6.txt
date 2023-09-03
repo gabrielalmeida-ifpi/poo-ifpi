@@ -1,0 +1,27 @@
+1 - As classes são os modelos com os quais os objetos são criados, ou instanciados, sendo uma forma de agrupar objetos com atributos e métodos semelhantes, já os objetos são as classes em execução, criados a partir delas. Um exemplo seria uma classe Eletrodoméstico, tendo como atributos a sua marca e o consumo de energia. Um objeto criado a partir dessa classe poderia ser o objeto Ventilador, da marca Mondial e com consumo de energia de 50 watts por hora.
+
+2 - Os atributos são características dos objetos. Os métodos são funções que esse objeto pode realizar, bem como seu comportamento. Um exemplo de um objeto que possui atributos e métodos seria o objeto Maria da classe Pessoa. O objeto Maria poderia ter como atributos a altura, o peso, a cor dos olhos, e como métodos o andar, falar e correr.
+
+3 - 
+Peso - Calculadora de IMC.
+Tipo de CNH - Aluguel de um veículo.
+Tipo Sanguíneo - Ficha médica de uma pessoa.
+Habilidade Destra - Em um sistema que contenha dados de atletas.
+Percentual de gordura - Em um sistema que avalie sua situação de obesidade.
+Saldo em conta - Sistema de conta bancária.
+Etnia - Um sistema que contenha dados demográficos de uma população.
+
+4 - 
+a) Sim, pois assim seria possível relacionar cada conta com o seu titular.
+b) Sim. O elemento que melhor representaria esse conjunto de contas seria um array.
+
+5 - Professor, disciplina, turma, curso, departamento.
+
+6 - 
+Jogador - Atributos: Vida, Ataque, Defesa. Métodos: Andar, Correr, Atacar.
+Bloco - Atributos: Comprimento, Largura, Altura. Métodos: Quebrar.
+Poção de Vida - Atributos: Quantidade de Vida Recuperada, Quantidade. Método: Recuperar Vida.
+Espada - Atributos: Dano, Durabilidade, Material. Métodos: Desgastar, Quebrar.
+Armadura - Atributos: Quant. do Bônus de Defesa, Durabilidade, Material. Métodos: Desgastar, Quebrar.
+Porta - Atributos: Fechadura, Tipo de Chave Necessária. Métodos: Abrir, Fechar.
+Chave - Atributos: Tipo de Chave. Métodos: Abrir fechadura.

@@ -1,0 +1,3 @@
+O erro de compilação acontece ao declarar r como uma instância da classe Radio sem fornecer o
+parâmetro necessário para que o construtor inicialize a variável "volume". Para resolver esse 
+erro, basta fornecer o parâmetro, como nesse exemplo: "let r: Radio = new Radio(2)".

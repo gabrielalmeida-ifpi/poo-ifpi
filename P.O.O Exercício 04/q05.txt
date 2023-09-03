@@ -1,0 +1,5 @@
+a. O resultado de todos os "prints" é 90, pois ao igualar "c1", "c2" e "c3" eles passam a referenciar o 
+mesmo objeto, fazendo com que qualquer alteração em um deles afete todas as contas.
+
+
+b. O objeto que "c1" referenciava é perdido, já que nenhuma variável o referencia.

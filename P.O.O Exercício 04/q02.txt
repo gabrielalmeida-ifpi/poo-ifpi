@@ -1,0 +1,3 @@
+Sim, haverá um erro de compilação. Quando os atributos de uma classe não são inicializados
+no momento da declaração, eles necessariamente precisam ser inicializados por um construtor,
+o que não acontece nesse código.

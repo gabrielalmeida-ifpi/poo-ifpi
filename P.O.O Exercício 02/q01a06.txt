@@ -1,0 +1,15 @@
+1 - Na tipagem estática, as variáveis são declaradas com um tipo que não pode ser alterado depois pelo desenvolvedor, ocasionando erros caso haja uma tentativa  de fazer isso. Já na tipagem dinâmica, a linguagem reconhece automaticamente o tipo da variável quando é declarada, não necessitando que o programador o explicite,
+permitindo que ele altere o conteúdo da variável para valores com tipos diferentes.
+
+2 - A tipagem dinâmica pode levar a mais erros em tempo de execução, pois não possui as restrições contidas na
+tipagem estática,podendo levar esses erros a serem descobertos pelo usuário ao invés do próprio desenvolvedor.
+inconsistência
+
+3 - A capacidade da tipagem dinâmica de realizar operações com tipos diferentes, sem mostrar um erro para o
+desenvolvedor no momento da compilação pode gerar situações problemáticas. Por exemplo, em um sistema, caso uma variável esteja sendo tratada como do tipo String  e outra do tipo Inteiro, caso haja uma comparação entre essas duas variáveis, mesmo que os valores sejam iguais, pode haver uma verificação incorreta e gerar um problema no código. Como a tipagem é dinâmica, é possível que essa inconsistência seja descoberta não pelo desenvolvedor, mas pelo usuário.
+
+4 - A linguagem C permite que um dado seja tratado como se fosse de outro tipo, por isso possui uma tipagem fraca. Por exemplo: Se em C somarmos um valor "2" do tipo Inteiro e um valor "2" do tipo String, ao invés de ocorrer um erro, os valores serão concatenados formando "22".  
+
+5 - Quando ainda não se tem certeza de qual tipo uma variável pertence, o any pode ser utilizado para preencher o tipo temporariamente.
+
+6 - Não. Apesar do Typescript ser uma linguagem flexível em relação a essa operação específica, isso só ocorre pois é uma operação considerada segura, não havendo perda ou inconsistência dos dados após realizada. Mesmo assim, o Typescript continua tendo verificações de tipo mais estritas, sendo assim uma linguagem com tipagem forte.

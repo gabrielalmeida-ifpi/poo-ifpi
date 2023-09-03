@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "allowUnreachableCode": true,
+    "noImplicitAny": true,
+    "target": "ES3",
+    "strictNullChecks": false,
+    "ignoreDeprecations": "5.0"
+  },
+  "include": [
+    "C:/Users/Novo/Documents/P.O.O Exercício 02/teste_config_typescript.ts"
+  ]
+}
+  

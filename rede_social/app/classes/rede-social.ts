@@ -1,9 +1,8 @@
-import { AsyncLocalStorage } from "async_hooks";
-import { Perfil } from "./perfil";
-import { Postagem } from "./postagem";
-import { PostagemAvancada } from "./postagem-avancada";
-import { RepositorioDePerfis } from "./repositorio-perfis";
-import { RepositorioDePostagens } from "./repositorio-postagens";
+import { Perfil } from "./perfil.js";
+import { RepositorioDePerfis } from "./repositorio-perfis.js";
+import { RepositorioDePostagens } from "./repositorio-postagens.js";
+import { Postagem } from "./postagem.js";
+import { PostagemAvancada } from "./postagem-avancada.js";
 
 export class RedeSocial {
     private _repoPerfis: RepositorioDePerfis
@@ -14,176 +13,100 @@ export class RedeSocial {
         this._repoPostagens = repoPostagens
     }
 
-    public incluirPerfil(perfil: Perfil): boolean {
-        let existe: boolean = false
-        for (let i: number = 0; i < this._repoPerfis.perfis.length; i++) {
-            if (this._repoPerfis.perfis[i].id == perfil.id) {
-                existe = true
-            }
-        }
-
-        if (!(existe) && perfil.user != undefined && perfil.email != undefined) {
+    public incluirPerfil(perfil: Perfil): void {
+        if (perfil.id != undefined && perfil.user != undefined && perfil.email != undefined && !this._repoPerfis.consultar(perfil.id, perfil.user, perfil.email)) {
             this._repoPerfis.incluir(perfil)
-            return true
         }
-        return false
     }   
 
-    public consultarPerfil(id?: number, user?: string, email?: string): Perfil | null {
+    public consultarPerfil(user: string, email?: string, id?: number): Perfil | null {
         return this._repoPerfis.consultar(id, user, email)
     }
 
-    public incluirPostagem(postagem: Postagem): boolean {
-        let existe: boolean = false
-        for (let i: number = 0; i < this._repoPostagens.postagens.length; i++) {
-            if (this.repoPostagens.postagens[i].id == postagem.id) {
-                existe = true
+    public incluirPostagem(postagem: Postagem){
+        let idRepetido: boolean = false
+        if (postagem.texto != null && postagem.id != null && postagem.perfil != null){
+            for (let i = 0; i < this._repoPostagens.postagens.length; i++) {
+                if (this._repoPostagens.postagens[i].id == postagem.id){
+                    idRepetido = true
+                }    
             }
         }
-
-        if (!(existe) && postagem.texto != undefined && postagem.perfil != undefined) {
+        if (idRepetido == false) {
             this._repoPostagens.incluir(postagem)
-            return true
         }
-
-        return false
+        return null
     }
 
-    public consultarPostagem(id?: number, texto?: string, hashtag?: string, perfil: Perfil | null = null): Postagem[] {
-        return this._repoPostagens.consultar(id, texto, hashtag, perfil)
+    public consultarPostagem(texto: string, hashtag?: string, perfil?: Perfil, id?: number): void {
+        this._repoPostagens.consultar(texto, hashtag, perfil, id)
     }
 
-    public curtir(idPost: number): void {
-        const postagemEncontrada = this._repoPostagens.postagens.find((postagem) => {
-            return (postagem.id == idPost)
-        })
-
-        if (postagemEncontrada) {
-            postagemEncontrada.curtir()
+    public curtir(idPostagem: number): void {
+        let postagens = this._repoPostagens.postagens;
+        for (let i = 0; i < postagens.length; i++) {
+            if (postagens[i].id == idPostagem){
+                postagens[i].curtir()
+            }
         }
     }
 
-    public descurtir(idPost: number): void {
-        const postagemEncontrada = this._repoPostagens.postagens.find((postagem) => {
-            return (postagem.id == idPost)
-        })
-
-        if (postagemEncontrada) {
-            postagemEncontrada.descurtir()
+    public descurtir(idPostagem: number): void {
+        let postagens = this._repoPostagens.postagens;
+        for (let i = 0; i < postagens.length; i++) {
+            if (postagens[i].id == idPostagem){
+                postagens[i].descurtir()
+            }
         }
     }
 
-    public decrementarVisualizacoes(post: PostagemAvancada): void {
-        post.decrementarVisualizacoes()
+    public decrementarVisualizacoes(postagem: PostagemAvancada): void {
+        postagem.decrementarVisualizacoes()
     }
 
-    public ehExibivel(post: PostagemAvancada): boolean {
-        if (post.visualizacoesRestantes > 0) {
-            return true
-        }
-        return false
-    }
+    public exibirPostagensPorPerfil(id: number): Postagem[] {
+        let postagensExibidas!: Postagem[];
+        let postagens = this._repoPostagens.postagens;
+        let postagemAtual: Postagem;
+        let postagemAvancadaAtual: PostagemAvancada;
 
-    public exibirPostPerfil(id: number): Postagem[] {
-        const perfilEncontrado = this._repoPerfis.perfis.find((perfil) => {
-            return (perfil.id == id)
-        } ) 
-
-        let posts: Postagem[] = []
-
-        if (perfilEncontrado) {
-            for (let post of perfilEncontrado.postagens) {
-                if (post instanceof PostagemAvancada) {
-                    if (this.ehExibivel(post)) {          //Coloquei a verificação no método ehExibivel
-                        posts.push(post)
-                        post.decrementarVisualizacoes()
+        for (let i = 0; i < postagens.length; i++) {
+            if (postagens[i].perfil.id == id){
+                if (postagens[i] instanceof PostagemAvancada){
+                    postagemAvancadaAtual = <PostagemAvancada> postagens[i]
+                    this.decrementarVisualizacoes(postagemAvancadaAtual)
+                    if (postagemAvancadaAtual.visualizacoesRestantes > 0){
+                        postagensExibidas.push(postagemAvancadaAtual)
                     }
-                } else {
-                    posts.push(post)
+                }
+                postagemAtual = postagens[i]
+                postagensExibidas.push(postagemAtual)
+            }
+        }
+
+        return postagensExibidas
+    }
+
+    public exibirPostagensPorHashtag(hashtag: string): Postagem[] {
+        let postagensExibidas!: Postagem[];
+        let postagens = this._repoPostagens.postagens;
+        let postagemAvancadaAtual: PostagemAvancada;
+
+        for (let i = 0; i < postagens.length; i++) {
+            if (postagens[i] instanceof PostagemAvancada){
+                if (postagens[i] instanceof PostagemAvancada){
+                    postagemAvancadaAtual = <PostagemAvancada> postagens[i]
+                    if (postagemAvancadaAtual.existeHashtag(hashtag)){
+                    this.decrementarVisualizacoes(postagemAvancadaAtual)
+                    if (postagemAvancadaAtual.visualizacoesRestantes > 0){
+                        postagensExibidas.push(postagemAvancadaAtual)
+                    }
+                }
                 }
             }
         }
 
-        return posts
-    }
-
-    public exibirPostsPopulares(repoPostagens: RepositorioDePostagens) { //Q.8 a)
-        let posts: Postagem[] = []
-        
-        for (let post of repoPostagens.postagens) {
-            if (post instanceof PostagemAvancada) {
-                if (this.ehExibivel(post) && post.ehPopular()) {
-                    posts.push(post)
-                    post.decrementarVisualizacoes()
-                }
-            } 
-        }
-
-        return posts
-    }
-
-    public exibirPerfisPopulares(repoPerfis: RepositorioDePerfis): Perfil[] { //func. adicional 1
-        let perfis: Perfil[] = []
-
-        for (let perfil of repoPerfis.perfis){
-            let curtidas: number = 0
-            let descurtidas: number = 0
-
-            for (let post of perfil.postagens) {
-                curtidas += post.curtidas
-                descurtidas += post.descurtidas
-            }
-
-            if (curtidas == (descurtidas * 1.5)) {
-                perfis.push(perfil)
-            }
-        }
-
-        return perfis
-    }
-
-    public bloquearPerfil(repoPerfis: RepositorioDePerfis, perfilBloqueando: Perfil, idBloqueado: number): void { //func. adicional 2 
-        for (let perfil of repoPerfis.perfis) {
-            if (perfil.id == idBloqueado) {
-                perfilBloqueando.bloqueados.push(perfil)
-            }
-        }
-    }
-
-    public exibirPostAleatorio(repoPostagens: RepositorioDePostagens): Postagem { //func. adicional que o rafael achou inutil
-        let alcance: number = repoPostagens.postagens.length
-        let idAleatorio = Math.floor(Math.random() * alcance) + 1
-        
-        for (let post of this.consultarPostagem(idAleatorio)) {
-            if (post.id ==idAleatorio) {
-                return post
-            }
-        }
-        return this.consultarPostagem(idAleatorio)[0]
-    }
-
-    public exibirPerfisAtivos(repoPerfis: RepositorioDePerfis, repoPostagens: RepositorioDePostagens) { //func. adicional 3
-        let perfis: Perfil[] = []
-        let numDePostagens: number = repoPostagens.postagens.length
-        let numDePerfis: number = repoPerfis.perfis.length
-        let mediaPostagensPorPerfil: number = numDePostagens / numDePerfis
-
-        for (let perfil of repoPerfis.perfis){
-            if (perfil.postagens.length > mediaPostagensPorPerfil) {
-                perfis.push(perfil)
-            }
-        }
-
-        return perfis
-    }
-
-    public exibirPostsHashtag(hashtag: string): Postagem[] {
-        const postsEncontrados = this._repoPostagens.postagens.filter((post) => {
-            return (post instanceof PostagemAvancada) &&
-                   (post.existeHashtag(hashtag))
-        } ) 
-
-        return postsEncontrados
+        return postagensExibidas
     }
 
     public get repoPerfis() : RepositorioDePerfis {

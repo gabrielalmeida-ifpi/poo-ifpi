@@ -1,4 +1,3 @@
-import { AsyncLocalStorage } from "async_hooks";
 import { Perfil } from "./perfil";
 import { Postagem } from "./postagem";
 import { PostagemAvancada } from "./postagem-avancada";
@@ -29,8 +28,8 @@ export class RedeSocial {
         return false
     }   
 
-    public consultarPerfil(id?: number, user?: string, email?: string): Perfil | null {
-        return this._repoPerfis.consultar(id, user, email)
+    public consultarPerfil(id?: number, user?: string, email?: string, senha?: string): Perfil | null {
+        return this._repoPerfis.consultar(id, user, email, senha)
     }
 
     public incluirPostagem(postagem: Postagem): boolean {

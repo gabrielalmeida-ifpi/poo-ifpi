@@ -20,8 +20,8 @@ class RedeSocial {
         }
         return false;
     }
-    consultarPerfil(id, user, email) {
-        return this._repoPerfis.consultar(id, user, email);
+    consultarPerfil(id, user, email, senha) {
+        return this._repoPerfis.consultar(id, user, email, senha);
     }
     incluirPostagem(postagem) {
         let existe = false;

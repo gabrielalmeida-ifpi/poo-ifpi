@@ -3,17 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const perfil_js_1 = require("./classes/perfil.js");
-const postagem_js_1 = require("./classes/postagem.js");
-const postagem_avancada_js_1 = require("./classes/postagem-avancada.js");
-const rede_social_js_1 = require("./classes/rede-social.js");
-const repositorio_perfis_js_1 = require("./classes/repositorio-perfis.js");
-const repositorio_postagens_js_1 = require("./classes/repositorio-postagens.js");
+const console_1 = require("console");
+const perfil_1 = require("./classes/perfil");
+const postagem_1 = require("./classes/postagem");
+const postagem_avancada_1 = require("./classes/postagem-avancada");
+const rede_social_1 = require("./classes/rede-social");
+const repositorio_perfis_1 = require("./classes/repositorio-perfis");
+const repositorio_postagens_1 = require("./classes/repositorio-postagens");
 const prompt_sync_1 = __importDefault(require("prompt-sync"));
 let input = (0, prompt_sync_1.default)();
 let idGlobal = 1;
 let idPostGlobal = 1;
 let perfilLogado;
+let isLogado = false;
 const opcoesDeFormato = {
     hour12: true
 };
@@ -21,9 +23,8 @@ class App {
     constructor(redeSocial) {
         this._redeSocial = redeSocial;
     }
-    menu() {
-        let opcao = 0;
-        console.clear();
+    titulo() {
+        (0, console_1.clear)();
         console.log(`
             ███████████                ██████            ███████████                    █████     
             ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
@@ -33,114 +34,188 @@ class App {
              ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
              █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
              ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-            \n
+            \n`);
+    }
+    acessarApp() {
+        let opcao = 0;
+        this.titulo();
+        console.log(`
             ❖ MENU DE OPCOES ❖\n
             1. Login
-            2. Feed
-            3. Cadastrar Perfil
-            4. Consultar Perfil
-            5. Criar Postagem
-            6. Consultar Postagem (ID)
-            7. Consultar Postagens (Perfil)
-            8. Consultar Postagens (Hashtags)
-            9. Curtir
-            10. Descurtir
-            11. Exibir Perfis Populares
-            12. Bloquear um Perfil
-            13. Exibir Perfis Bloqueados
-            14. Desbloquear um Perfil
-            15. Exibir os Perfis Mais Ativos
-            16. Seguir um Perfil
-            17. Exibir Seguidores
-            18. Exibir Postagem de um Seguidor
-            19: Deixar de Seguir um Perfil
-            20. Exibir Perfis que Você Segue
-            21. Exibir Postagens de um Seguido
+            2. Cadastrar-se
+            
+            0. Sair\n`);
+        opcao = +input("            Opcao: ");
+        switch (opcao) {
+            case 1:
+                this.login();
+                break;
+            case 2:
+                this.cadastrarPerfil();
+                break;
+            case 0:
+                console.log("            Aplicação encerrada");
+                break;
+            default:
+                this.acessarApp();
+        }
+    }
+    login() {
+        this.titulo();
+        console.log(`
+        ❖ LOGIN ❖\n`);
+        let user = input("          User: ");
+        let senha = input("          Senha: ");
+        let perfil = this._redeSocial.consultarPerfil(undefined, user, undefined, senha);
+        if (perfil) {
+            perfilLogado = perfil;
+            isLogado = true;
+            console.log(`\n          Agora você está logado como o user ${perfilLogado.user}.`);
+            input("\n          Pressione Enter para retornar ao menu...");
+            this.menu();
+        }
+        else {
+            console.log("\n          Usuario ou senha incorretos!");
+            input("\n          Pressione Enter para retornar ao menu...");
+            this.acessarApp();
+        }
+    }
+    consultar() {
+        this.titulo();
+        console.log(`
+        ❖ CONSULTA ❖\n
+        
+        Use os atalhos para busca:
+        
+        - Para pesquisar perfis, utilize (@) antes do usuario
+        - Para pesquisar postagens por hahstags, utilize (#) antes da hahstag
+        - Para pesquisar postagens por conteudo, apenas digite o texto`);
+        let busca = input("/n          | ");
+        if (/^@/.test(busca)) {
+            let user = busca.substring(1);
+            let perfil = this._redeSocial.consultarPerfil(undefined, user);
+            if (perfil) {
+                console.log(`
+            Perfil Encontrado:
+
+            Id: ${perfil.id}
+            User: ${perfil.user}
+            E-mail: ${perfil.email}
+                `);
+            }
+            else {
+                console.log("\n     Perfil nao encontrado!");
+            }
+            input("\n          Pressione Enter para retornar ao menu...");
+            this.menu();
+        }
+        else if (/^#/.test(busca)) {
+            let hashtag = busca.substring(1);
+            this.consultarHashtag(hashtag);
+            input("\n          Pressione Enter para retornar ao menu...");
+            this.menu();
+        }
+        else {
+        }
+    }
+    menu() {
+        let opcao = 0;
+        this.titulo();
+        console.log(`
+            ❖ MENU DE OPCOES ❖\n
+            01. Feed
+            02. Consultar
+            03. Criar Postagem
+            04. Exibir Perfis Populares
+            05. Exibir Posts Populares
+
+            ❖ PERFIL ❖\n
+            06. Bloquear um Perfil
+            07. Exibir Perfis Bloqueados
+            08. Desbloquear um Perfil
+            09. Exibir os Perfis Mais Ativos
+            10. Seguir um Perfil
+            11. Exibir Seguidores
+            12. Exibir Perfis que você Segue
+            13: Deixar de Seguir um Perfil
+
+            ❖ RECURSOS SOLICITADOS ❖\n
+            14. Consultar Perfil
+            15. Consultar Postagem (ID)
+            16. Consultar Postagens (Perfil)
+            17. Curtir
+            18. Descurtir
+
+            ❖ AVANCADO ❖\n
             0. Sair\n`);
         opcao = +input("Opcao: ");
         switch (opcao) {
             case 1:
-                this.acessoAoPerfil();
-                break;
-            case 2:
                 this.feed();
                 break;
+            case 2:
+                this.consultar();
+                break;
             case 3:
-                this.cadastrarPerfil();
-                break;
-            case 4:
-                this.consultarPerfil();
-                break;
-            case 5:
                 this.criarPostagem();
                 break;
-            case 6:
-                this.consultarPostId();
-                break;
-            case 7:
-                this.consultarPorPerfil();
-                break;
-            case 8:
-                this.consultarHashtag();
-                break;
-            case 9:
-                this.curtir();
-                break;
-            case 10:
-                this.descurtir();
-                break;
-            case 11:
+            case 4:
                 this.exibirPerfisPopulares();
                 break;
-            case 12:
+            case 5:
+                this.exibirPostsPopulares();
+                break;
+            case 6:
                 this.bloquearPerfil();
                 break;
-            case 13:
+            case 7:
                 this.exibirBloqueados();
                 break;
-            case 14:
+            case 8:
                 this.desbloquearPerfil();
                 break;
-            case 15:
+            case 9:
                 this.exibirPerfisAtivos();
-            case 16:
+                break;
+            case 10:
                 this.seguirPerfil();
                 break;
-            case 17:
+            case 11:
                 this.exibirSeguidores();
                 break;
-            case 18:
-                this.exibirPostagensDoSeguidor();
-                break;
-            case 19:
-                this.desseguirPerfil();
-                break;
-            case 20:
+            case 12:
                 this.exibirSeguindo();
                 break;
-            case 21:
-                this.exibirPostagensDoSeguido();
+            case 13:
+                this.desseguirPerfil();
+                break;
+            case 14:
+                this.consultarPerfil();
+            case 15:
+                this.consultarPostId();
+                break;
+            case 16:
+                this.consultarPorPerfil();
+                break;
+            case 17:
+                this.curtir();
+                break;
+            case 18:
+                this.descurtir();
+                break;
+            case 0:
+                this.acessarApp();
                 break;
             default:
+                this.menu();
         }
-        console.log("Aplicação encerrada");
     }
-    consultarHashtag() {
-        console.clear();
+    consultarHashtag(hash) {
+        this.titulo();
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                    ❖ CONSULTAR POST POR HASHTAG ❖\n`);
-        let hash = input("      Hashtag: ");
+        ❖ CONSULTAR POST POR HASHTAG ❖\n`);
         const postComHashtags = this._redeSocial.repoPostagens.postagens.filter((postagem) => {
-            return (postagem instanceof postagem_avancada_js_1.PostagemAvancada) && (postagem.existeHashtag(hash));
+            return (postagem instanceof postagem_avancada_1.PostagemAvancada) && (postagem.existeHashtag(hash));
         });
         let postagens = postComHashtags;
         for (let i = 0; i < postagens.length; i++) {
@@ -150,7 +225,7 @@ class App {
             ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
             ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
             let hashtags = "";
-            if (post instanceof postagem_avancada_js_1.PostagemAvancada) {
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
                 for (let hash of post.hashtags) {
                     hashtags += "#" + hash + " ";
                 }
@@ -164,18 +239,9 @@ class App {
         this.menu();
     }
     consultarPorPerfil() {
-        console.clear();
+        this.titulo();
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                    ❖ CONSULTAR POST POR PERFIL ❖\n`);
+        ❖ CONSULTAR POST POR PERFIL ❖\n`);
         let user = input("      User: ");
         let perfil = this._redeSocial.consultarPerfil(undefined, user);
         let postagem = this._redeSocial.consultarPostagem(undefined, undefined, undefined, perfil);
@@ -187,7 +253,7 @@ class App {
             ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
             ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
             let hashtags = "";
-            if (post instanceof postagem_avancada_js_1.PostagemAvancada) {
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
                 for (let hash of post.hashtags) {
                     hashtags += "#" + hash + " ";
                 }
@@ -201,18 +267,9 @@ class App {
         this.menu();
     }
     consultarPostId() {
-        console.clear();
+        this.titulo();
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                    ❖ CONSULTAR POST POR ID ❖\n`);
+        ❖ CONSULTAR POST POR ID ❖\n`);
         let id = +input("      Id: ");
         let postagem = this._redeSocial.consultarPostagem(id);
         let post = postagem[0];
@@ -221,7 +278,7 @@ class App {
             ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
             ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
         let hashtags = "";
-        if (post instanceof postagem_avancada_js_1.PostagemAvancada) {
+        if (post instanceof postagem_avancada_1.PostagemAvancada) {
             for (let hash of post.hashtags) {
                 hashtags += "#" + hash + " ";
             }
@@ -234,30 +291,16 @@ class App {
         this.menu();
     }
     criarPostagem() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.clear();
+        this.titulo();
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                        ❖ CRIAR POSTAGEM ❖\n`);
+        ❖ CRIAR POSTAGEM ❖\n`);
         let texto = input("Conteudo: ");
         let escolha = input("Adicionar hashtags (s/n): ");
         let id = idPostGlobal;
         idPostGlobal++;
         if (perfilLogado) {
             if (escolha == 's' || escolha == 'S') {
-                let postAvan = new postagem_avancada_js_1.PostagemAvancada(id, texto, 0, 0, new Date(), perfilLogado, 100);
+                let postAvan = new postagem_avancada_1.PostagemAvancada(id, texto, 0, 0, new Date(), perfilLogado, 100);
                 this._redeSocial.incluirPostagem(postAvan);
                 let hashtags = input("Digite a(s) hahstags que deseja adicionar (separadas por espaco: ");
                 let arrayHashtags = hashtags.split(" ");
@@ -266,7 +309,7 @@ class App {
                 }
             }
             else {
-                let post = new postagem_js_1.Postagem(id, texto, 0, 0, new Date(), perfilLogado);
+                let post = new postagem_1.Postagem(id, texto, 0, 0, new Date(), perfilLogado);
                 this._redeSocial.incluirPostagem(post);
             }
             if (this._redeSocial.consultarPostagem(id)) {
@@ -283,44 +326,27 @@ class App {
         this.menu();
     }
     cadastrarPerfil() {
-        console.clear();
+        this.titulo();
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                        ❖ CADASTRAR PERFIL ❖\n`);
-        let user = input("      User: ");
-        let email = input("      E-mail: ");
+        ❖ CADASTRAR PERFIL ❖\n`);
+        let user = input("          User: ");
+        let email = input("          E-mail: ");
+        let senha = input("          Senha: ");
         let id = idGlobal;
         idGlobal++;
-        if (this._redeSocial.incluirPerfil(new perfil_js_1.Perfil(id, user, email))) {
-            console.log("\nPerfil cadastrado com sucesso!");
+        if (this._redeSocial.incluirPerfil(new perfil_1.Perfil(id, user, email, senha))) {
+            console.log("\n     Perfil cadastrado com sucesso!");
         }
         else {
-            console.log("\nERRO! Perfil existente, ou falha no cadastro.");
+            console.log("\n     ERRO! Perfil existente, ou falha no cadastro.");
         }
-        input("\nPressione Enter para retornar ao menu...");
-        this.menu();
+        input("\n     Pressione Enter para retornar ao menu...");
+        this.acessarApp();
     }
     consultarPerfil() {
-        console.clear();
+        this.titulo();
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                        ❖ CONSULTAR PERFIL ❖\n`);
+        ❖ CONSULTAR PERFIL ❖\n`);
         console.log("       Preencha os que quiser.\n");
         let id = +input("      Id: ");
         let user = input("      User: ");
@@ -342,18 +368,9 @@ class App {
         this.menu();
     }
     feed() {
-        console.clear();
+        this.titulo();
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                            ❖ FEED ❖\n`);
+        ❖ FEED ❖\n`);
         let postagens = this._redeSocial.repoPostagens.postagens;
         for (let i = 0; i < postagens.length; i++) {
             let post = postagens[i];
@@ -362,7 +379,7 @@ class App {
             ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
             ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
             let hashtags = "";
-            if (post instanceof postagem_avancada_js_1.PostagemAvancada) {
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
                 for (let hash of post.hashtags) {
                     hashtags += "#" + hash + " ";
                 }
@@ -375,30 +392,10 @@ class App {
         input("\n       Pressione Enter para retornar ao menu...");
         this.menu();
     }
-    acessoAoPerfil() {
-        console.log("       Preencha os que quiser para encontrar sua conta.\n");
-        let id = +input("      Id: ");
-        let user = input("      User: ");
-        let email = input("      E-mail: ");
-        let perfil = this._redeSocial.consultarPerfil(id, user, email);
-        if (perfil) {
-            console.log(`
-        Perfil Encontrado:
-
-        Id: ${perfil.id}
-        User: ${perfil.user}
-        E-mail: ${perfil.email}
-            `);
-            perfilLogado = perfil;
-            console.log(`Agora você está logado como o user ${perfilLogado.user}.`);
-        }
-        else {
-            console.log("\n     Perfil nao encontrado!");
-        }
-        input("\nPressione Enter para retornar ao menu...");
-        this.menu();
-    }
     curtir() {
+        this.titulo();
+        console.log(`
+        ❖ CURTIR POST ❖\n`);
         let id = +input("      Id: ");
         let postagem = this._redeSocial.consultarPostagem(id);
         let post = postagem[0];
@@ -409,7 +406,7 @@ class App {
             ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
             ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
         let hashtags = "";
-        if (post instanceof postagem_avancada_js_1.PostagemAvancada) {
+        if (post instanceof postagem_avancada_1.PostagemAvancada) {
             for (let hash of post.hashtags) {
                 hashtags += "#" + hash + " ";
             }
@@ -422,6 +419,9 @@ class App {
         this.menu();
     }
     descurtir() {
+        this.titulo();
+        console.log(`
+        ❖ DESCURTIR POST ❖\n`);
         let id = +input("      Id: ");
         let postagem = this._redeSocial.consultarPostagem(id);
         let post = postagem[0];
@@ -432,7 +432,7 @@ class App {
             ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
             ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
         let hashtags = "";
-        if (post instanceof postagem_avancada_js_1.PostagemAvancada) {
+        if (post instanceof postagem_avancada_1.PostagemAvancada) {
             for (let hash of post.hashtags) {
                 hashtags += "#" + hash + " ";
             }
@@ -445,8 +445,10 @@ class App {
         this.menu();
     }
     exibirPerfisPopulares() {
+        this.titulo();
+        console.log(`
+        ❖ PERFIS POPULARES ❖\n`);
         let perfisPopulares = redeSocial.exibirPerfisPopulares(redeSocial.repoPerfis);
-        console.log('Usuários populares: ');
         for (let perfil of perfisPopulares) {
             console.log(`ID: ${perfil.id}`);
             console.log(`User: ${perfil.user}`);
@@ -454,17 +456,37 @@ class App {
         input("\nPressione Enter para retornar ao menu...");
         this.menu();
     }
-    bloquearPerfil() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
+    exibirPostsPopulares() {
+        this.titulo();
+        console.log(`
+        ❖ POSTS POPULARES ❖\n`);
+        let postsPopulares = redeSocial.exibirPostsPopulares(redeSocial.repoPostagens);
+        for (let post of postsPopulares) {
+            console.log(`
+            \x1b[1m@${post.perfil.user}\x1b[0m\n
+            ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
+            ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
+            let hashtags = "";
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
+                for (let hash of post.hashtags) {
+                    hashtags += "#" + hash + " ";
+                }
+                console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
+                this._redeSocial.decrementarVisualizacoes(post);
+            }
+            console.log(`
+            ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
         }
-        console.log("       Preencha os que quiser para encontrar o perfil a bloquear.\n");
-        let id = +input("      Id: ");
+        input("\nPressione Enter para retornar ao menu...");
+        this.menu();
+    }
+    bloquearPerfil() {
+        this.titulo();
+        console.log(`
+        ❖ BLOQUEAR PERFIL ❖\n`);
+        console.log("       Preencha o usuario do perfil que deseja bloquear.\n");
         let user = input("      User: ");
-        let email = input("      E-mail: ");
-        let perfilBloquear = this._redeSocial.consultarPerfil(id, user, email);
+        let perfilBloquear = this._redeSocial.consultarPerfil(undefined, user);
         if (perfilBloquear) {
             console.log(`
         Perfil Encontrado:
@@ -483,16 +505,12 @@ class App {
         this.menu();
     }
     desbloquearPerfil() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log("       Preencha os que quiser para encontrar o perfil a desbloquear.\n");
-        let id = +input("      Id: ");
+        this.titulo();
+        console.log(`
+        ❖ DESBLOQUEAR PERFIL ❖\n`);
+        console.log("       Preencha o usuario do perfil que deseja desbloquear.\n");
         let user = input("      User: ");
-        let email = input("      E-mail: ");
-        let perfilDesbloquear = this._redeSocial.consultarPerfil(id, user, email);
+        let perfilDesbloquear = this._redeSocial.consultarPerfil(undefined, user);
         if (perfilDesbloquear) {
             console.log(`
         Perfil Encontrado:
@@ -511,12 +529,9 @@ class App {
         this.menu();
     }
     exibirBloqueados() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log('Perfis Bloqueados:');
+        this.titulo();
+        console.log(`
+        ❖ PERFIS BLOQUEADOS ❖\n`);
         for (let bloqueado of perfilLogado.bloqueados) {
             console.log(`
             User Bloqueado: ${bloqueado.user}
@@ -526,6 +541,9 @@ class App {
         this.menu();
     }
     exibirPerfisAtivos() {
+        this.titulo();
+        console.log(`
+        ❖ PERFIS ATIVOS ❖\n`);
         let perfisAtivos = redeSocial.exibirPerfisAtivos(redeSocial.repoPerfis, redeSocial.repoPostagens);
         for (let perfil of perfisAtivos) {
             console.log(`
@@ -536,16 +554,12 @@ class App {
         this.menu();
     }
     seguirPerfil() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log("       Preencha os que quiser para encontrar o perfil que deseja seguir.\n");
-        let id = +input("      Id: ");
+        this.titulo();
+        console.log(`
+        ❖ SEGUIR PERFIL ❖\n`);
+        console.log("       Preencha o usuario do perfil que deseja seguir.\n");
         let user = input("      User: ");
-        let email = input("      E-mail: ");
-        let perfilSeguir = this._redeSocial.consultarPerfil(id, user, email);
+        let perfilSeguir = this._redeSocial.consultarPerfil(undefined, user);
         if (perfilSeguir) {
             console.log(`
         Perfil Encontrado:
@@ -564,37 +578,17 @@ class App {
         this.menu();
     }
     exibirSeguidores() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log('Perfis que o seguem:');
-        for (let seguidor of perfilLogado.seguidores) {
-            console.log(`
-            Seguidor: ${seguidor.user}
-                `);
-        }
-        input("\nPressione Enter para retornar ao menu...");
-        this.menu();
-    }
-    exibirPostagensDoSeguidor() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log('Perfis que você segue:');
+        this.titulo();
+        console.log(`
+        ❖ SEGUIDORES ❖\n`);
         for (let seguido of perfilLogado.seguidos) {
             console.log(`
             Seguidor: ${seguido.user}
                 `);
         }
         console.log("       Preencha os que quiser para acessar o seguidor.\n");
-        let id = +input("      Id: ");
         let user = input("      User: ");
-        let email = input("      E-mail: ");
-        let perfil = (this._redeSocial.consultarPerfil(id, user, email));
+        let perfil = (this._redeSocial.consultarPerfil(undefined, user));
         let ehSeguidor = false;
         for (let seguidor of perfilLogado.seguidores) {
             if (seguidor.id == perfil.id) {
@@ -610,13 +604,13 @@ class App {
         E-mail: ${perfil.email}
             `);
             let postagensSeguidor = redeSocial.exibirPostagensDoSeguidor(perfil);
-            console.log('Postagens do Seguidor:');
+            console.log('\nPostagens do Seguidor:');
             for (let postagem of postagensSeguidor) {
                 console.log(`
             Postagem: ${postagem.texto}
             User: ${postagem.perfil.user}
             Data: ${postagem.data}`);
-                if (postagem instanceof postagem_avancada_js_1.PostagemAvancada) {
+                if (postagem instanceof postagem_avancada_1.PostagemAvancada) {
                     let postagemAvancada = postagem;
                     for (let hashtag of postagemAvancada.hashtags) {
                         console.log(`Hashtag: #${hashtag}`);
@@ -631,22 +625,17 @@ class App {
         this.menu();
     }
     desseguirPerfil() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log('Perfis que você segue:');
+        this.titulo();
+        console.log(`
+        ❖ DEIXAR DE SEGUIR PERFIL ❖\n`);
         for (let seguido of perfilLogado.seguidos) {
             console.log(`
             Seguidor: ${seguido.user}
                 `);
         }
-        console.log("       Preencha os que quiser para acessar o perfil que deseja deixar de seguir.\n");
-        let id = +input("      Id: ");
+        console.log("       Preencha o usario do perfil que deseja deixar de seguir.\n");
         let user = input("      User: ");
-        let email = input("      E-mail: ");
-        let perfilDesseguir = this._redeSocial.consultarPerfil(id, user, email);
+        let perfilDesseguir = this._redeSocial.consultarPerfil(undefined, user);
         if (perfilDesseguir) {
             console.log(`
         Perfil Encontrado:
@@ -665,37 +654,17 @@ class App {
         this.menu();
     }
     exibirSeguindo() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log('Perfis que você segue:');
+        this.titulo();
+        console.log(`
+        ❖ PERFIS QUE VOCE SEGUE ❖\n`);
         for (let seguido of perfilLogado.seguidos) {
             console.log(`
-            Seguidor: ${seguido.user}
+            Seguido: ${seguido.user}
                 `);
         }
-        input("\nPressione Enter para retornar ao menu...");
-        this.menu();
-    }
-    exibirPostagensDoSeguido() {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.");
-            input("\nPressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        console.log('Perfis que você segue:');
-        for (let seguido of perfilLogado.seguidos) {
-            console.log(`
-            Seguidor: ${seguido.user}
-                `);
-        }
-        console.log("       Preencha os que quiser para acessar o seu seguido.\n");
-        let id = +input("      Id: ");
+        console.log("       Preencha o usuario do seu seguido para acessar as postagens.\n");
         let user = input("      User: ");
-        let email = input("      E-mail: ");
-        let perfil = (this._redeSocial.consultarPerfil(id, user, email));
+        let perfil = (this._redeSocial.consultarPerfil(undefined, user));
         let ehSeguido = false;
         for (let seguido of perfilLogado.seguidos) {
             if (seguido.id == perfil.id) {
@@ -717,7 +686,7 @@ class App {
             Postagem: ${postagem.texto}
             User: ${postagem.perfil.user}
             Data: ${postagem.data}`);
-                if (postagem instanceof postagem_avancada_js_1.PostagemAvancada) {
+                if (postagem instanceof postagem_avancada_1.PostagemAvancada) {
                     let postagemAvancada = postagem;
                     for (let hashtag of postagemAvancada.hashtags) {
                         console.log(`Hashtag: #${hashtag}`);
@@ -748,6 +717,11 @@ class App {
         return linhas.join('\n            ');
     }
 }
-let redeSocial = new rede_social_js_1.RedeSocial(new repositorio_perfis_js_1.RepositorioDePerfis, new repositorio_postagens_js_1.RepositorioDePostagens);
+let redeSocial = new rede_social_1.RedeSocial(new repositorio_perfis_1.RepositorioDePerfis, new repositorio_postagens_1.RepositorioDePostagens);
 let app = new App(redeSocial);
-app.menu();
+if (isLogado) {
+    app.menu();
+}
+else {
+    app.acessarApp();
+}

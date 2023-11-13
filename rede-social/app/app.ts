@@ -1,15 +1,17 @@
-import { Perfil } from "./classes/perfil.js"
-import { Postagem } from "./classes/postagem.js"
-import { PostagemAvancada } from "./classes/postagem-avancada.js"
-import { RedeSocial } from "./classes/rede-social.js"
-import { RepositorioDePerfis } from "./classes/repositorio-perfis.js"
-import { RepositorioDePostagens } from "./classes/repositorio-postagens.js"
+import { clear } from "console"
+import { Perfil } from "./classes/perfil"
+import { Postagem } from "./classes/postagem"
+import { PostagemAvancada } from "./classes/postagem-avancada"
+import { RedeSocial } from "./classes/rede-social"
+import { RepositorioDePerfis } from "./classes/repositorio-perfis"
+import { RepositorioDePostagens } from "./classes/repositorio-postagens"
 import prompt from 'prompt-sync'
 
 let input = prompt()
 let idGlobal: number = 1
 let idPostGlobal = 1
-let perfilLogado: Perfil;
+let perfilLogado: Perfil
+let isLogado: boolean = false
 
 const opcoesDeFormato = {
     hour12: true
@@ -22,9 +24,8 @@ class App {
         this._redeSocial = redeSocial
     }
 
-    public menu(): void {
-        let opcao: number = 0
-        console.clear()
+    public titulo(): void {
+        clear()
         console.log(`
             ███████████                ██████            ███████████                    █████     
             ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
@@ -34,117 +35,201 @@ class App {
              ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
              █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
              ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-            \n
+            \n`)
+    }
+
+    public acessarApp(): void {
+        let opcao: number = 0
+        this.titulo()
+        console.log(`
             ❖ MENU DE OPCOES ❖\n
             1. Login
-            2. Feed
-            3. Cadastrar Perfil
-            4. Consultar Perfil
-            5. Criar Postagem
-            6. Consultar Postagem (ID)
-            7. Consultar Postagens (Perfil)
-            8. Consultar Postagens (Hashtags)
-            9. Curtir
-            10. Descurtir
-            11. Exibir Perfis Populares
-            12. Bloquear um Perfil
-            13. Exibir Perfis Bloqueados
-            14. Desbloquear um Perfil
-            15. Exibir os Perfis Mais Ativos
-            16. Seguir um Perfil
-            17. Exibir Seguidores
-            18. Exibir Postagem de um Seguidor
-            19: Deixar de Seguir um Perfil
-            20. Exibir Perfis que Você Segue
-            21. Exibir Postagens de um Seguido
+            2. Cadastrar-se
+            
+            0. Sair\n`)
+
+            opcao = +input("            Opcao: ")
+        
+            switch (opcao) {
+            case 1:
+                this.login()
+                break
+            case 2:
+                this.cadastrarPerfil()
+                break
+            case 0:
+                console.log("            Aplicação encerrada")
+                break
+            default:
+                this.acessarApp()
+            }  
+    }
+
+    public login(): void {
+        this.titulo()
+        console.log(`
+        ❖ LOGIN ❖\n`)
+        let user: string = input("          User: ")
+        let senha: string = input("          Senha: ")
+
+        let perfil: Perfil | null = this._redeSocial.consultarPerfil(undefined, user, undefined, senha)
+
+        if (perfil) {
+            perfilLogado = perfil
+            isLogado = true
+
+            console.log(`\n          Agora você está logado como o user ${perfilLogado.user}.`)
+
+            input("\n          Pressione Enter para retornar ao menu...")
+            this.menu()
+        } else {
+            console.log("\n          Usuario ou senha incorretos!")
+
+            input("\n          Pressione Enter para retornar ao menu...")
+            this.acessarApp()
+        }
+    }
+
+    public consultar(): void {
+        this.titulo()
+        console.log(`
+        ❖ CONSULTA ❖\n
+        
+        Use os atalhos para busca:
+        
+        - Para pesquisar perfis, utilize (@) antes do usuario
+        - Para pesquisar postagens por hahstags, utilize (#) antes da hahstag
+        - Para pesquisar postagens por conteudo, apenas digite o texto`)
+
+        let busca: string = input("/n          | ")
+        if (/^@/.test(busca)) {
+            let user: string = busca.substring(1)
+            let perfil: Perfil | null = this._redeSocial.consultarPerfil(undefined, user)
+
+            if (perfil) {
+                console.log(`
+            Perfil Encontrado:
+
+            Id: ${perfil.id}
+            User: ${perfil.user}
+            E-mail: ${perfil.email}
+                `)
+            } else {
+                console.log("\n     Perfil nao encontrado!")
+            }
+
+            input("\n          Pressione Enter para retornar ao menu...")
+            this.menu()
+        } else if (/^#/.test(busca)) {
+            let hashtag: string = busca.substring(1)
+            this.consultarHashtag(hashtag)
+            input("\n          Pressione Enter para retornar ao menu...")
+            this.menu()
+        } else {
+
+        }
+
+    }
+
+    public menu(): void {
+        let opcao: number = 0
+        this.titulo()
+        console.log(`
+            ❖ MENU DE OPCOES ❖\n
+            01. Feed
+            02. Consultar
+            03. Criar Postagem
+            04. Exibir Perfis Populares
+            05. Exibir Posts Populares
+
+            ❖ PERFIL ❖\n
+            06. Bloquear um Perfil
+            07. Exibir Perfis Bloqueados
+            08. Desbloquear um Perfil
+            09. Exibir os Perfis Mais Ativos
+            10. Seguir um Perfil
+            11. Exibir Seguidores
+            12. Exibir Perfis que você Segue
+            13: Deixar de Seguir um Perfil
+
+            ❖ RECURSOS SOLICITADOS ❖\n
+            14. Consultar Perfil
+            15. Consultar Postagem (ID)
+            16. Consultar Postagens (Perfil)
+            17. Curtir
+            18. Descurtir
+
+            ❖ AVANCADO ❖\n
             0. Sair\n`)
 
             opcao = +input("Opcao: ")
 
             switch (opcao) {
                 case 1:
-                    this.acessoAoPerfil()
-                    break
-                case 2:
                     this.feed()
                     break
+                case 2:
+                    this.consultar()
+                    break
                 case 3:
-                    this.cadastrarPerfil()
-                    break
-                case 4:
-                    this.consultarPerfil()
-                    break
-                case 5:
                     this.criarPostagem()
                     break
-                case 6:
-                    this.consultarPostId()
-                    break
-                case 7:
-                    this.consultarPorPerfil()
-                    break
-                case 8:
-                    this.consultarHashtag()
-                    break
-                case 9:
-                    this.curtir()
-                    break
-                case 10:
-                    this.descurtir()
-                    break
-                case 11:
+                case 4:
                     this.exibirPerfisPopulares()
                     break
-                case 12:
+                case 5:
+                    this.exibirPostsPopulares()
+                    break
+                case 6:
                     this.bloquearPerfil()
                     break
-                case 13:
+                case 7:
                     this.exibirBloqueados()
                     break
-                case 14:
+                case 8:
                     this.desbloquearPerfil()
                     break
-                case 15:
+                case 9:
                     this.exibirPerfisAtivos()
-                case 16:
+                    break
+                case 10:
                     this.seguirPerfil()
                     break
-                case 17:
+                case 11:
                     this.exibirSeguidores()
                     break
-                case 18:
-                    this.exibirPostagensDoSeguidor()
-                    break
-                case 19:
-                    this.desseguirPerfil()
-                    break
-                case 20:
+                case 12:
                     this.exibirSeguindo()
                     break
-                case 21:
-                    this.exibirPostagensDoSeguido()
+                case 13:
+                    this.desseguirPerfil()
                     break
-
-                    default:
-            }  
-        console.log("Aplicação encerrada")
+                case 14:
+                    this.consultarPerfil()
+                case 15:
+                    this.consultarPostId()
+                    break
+                case 16:
+                    this.consultarPorPerfil()
+                    break
+                case 17:
+                    this.curtir()
+                    break
+                case 18:
+                    this.descurtir()
+                    break
+                case 0:
+                    this.acessarApp()
+                    break
+                default:
+                    this.menu()
+            }
     }
 
-    public consultarHashtag(): void {
-        console.clear()
+    public consultarHashtag(hash: string): void {
+        this.titulo()
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                    ❖ CONSULTAR POST POR HASHTAG ❖\n`)
-
-        let hash: string = input("      Hashtag: ")
+        ❖ CONSULTAR POST POR HASHTAG ❖\n`)
                             
         const postComHashtags = this._redeSocial.repoPostagens.postagens.filter((postagem) => {
             return (postagem instanceof PostagemAvancada) && (postagem.existeHashtag(hash))
@@ -176,18 +261,9 @@ class App {
     }
 
     public consultarPorPerfil(): void {
-        console.clear()
+        this.titulo()
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                    ❖ CONSULTAR POST POR PERFIL ❖\n`)
+        ❖ CONSULTAR POST POR PERFIL ❖\n`)
 
         let user: string = input("      User: ")
                             
@@ -221,18 +297,9 @@ class App {
     }
     
     public consultarPostId(): void {
-        console.clear()
+        this.titulo()
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                    ❖ CONSULTAR POST POR ID ❖\n`)
+        ❖ CONSULTAR POST POR ID ❖\n`)
 
         let id: number = +input("      Id: ")
 
@@ -261,23 +328,9 @@ class App {
     }
 
     public criarPostagem(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-        console.clear()
+        this.titulo()
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                        ❖ CRIAR POSTAGEM ❖\n`)
+        ❖ CRIAR POSTAGEM ❖\n`)
 
         let texto: string = input("Conteudo: ")
 
@@ -313,46 +366,31 @@ class App {
     }
 
     public cadastrarPerfil(): void {
-        console.clear()
+        this.titulo()
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                        ❖ CADASTRAR PERFIL ❖\n`)
+        ❖ CADASTRAR PERFIL ❖\n`)
 
-        let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
+        let user: string = input("          User: ")
+        let email: string = input("          E-mail: ")
+        let senha: string = input("          Senha: ")
         let id = idGlobal
+
         idGlobal++
-        if (this._redeSocial.incluirPerfil(new Perfil(id, user, email))) {
-            console.log("\nPerfil cadastrado com sucesso!")
+
+        if (this._redeSocial.incluirPerfil(new Perfil(id, user, email, senha))) {
+            console.log("\n     Perfil cadastrado com sucesso!")
         } else {
-            console.log("\nERRO! Perfil existente, ou falha no cadastro.")
+            console.log("\n     ERRO! Perfil existente, ou falha no cadastro.")
         }
 
-        input("\nPressione Enter para retornar ao menu...")
-        this.menu()
+        input("\n     Pressione Enter para retornar ao menu...")
+        this.acessarApp()
     }
 
     public consultarPerfil(): void {
-        console.clear()
+        this.titulo()
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                        ❖ CONSULTAR PERFIL ❖\n`)
+        ❖ CONSULTAR PERFIL ❖\n`)
 
         console.log("       Preencha os que quiser.\n")
         let id: number = +input("      Id: ")
@@ -378,18 +416,9 @@ class App {
     }
 
     public feed(): void {
-        console.clear()
+        this.titulo()
         console.log(`
-        ███████████                ██████            ███████████                    █████     
-        ░░███░░░░░███              ███░░███          ░░███░░░░░███                  ░░███      
-         ░███    ░███   ██████    ░███ ░░░   ██████   ░███    ░███  ██████   ██████  ░███ █████
-         ░██████████   ░░░░░███  ███████    ░░░░░███  ░██████████  ███░░███ ███░░███ ░███░░███ 
-         ░███░░░░░███   ███████ ░░░███░      ███████  ░███░░░░░███░███ ░███░███ ░███ ░██████░  
-         ░███    ░███  ███░░███   ░███      ███░░███  ░███    ░███░███ ░███░███ ░███ ░███░░███ 
-         █████   █████░░████████  █████    ░░████████ ███████████ ░░██████ ░░██████  ████ █████
-         ░░░░░   ░░░░░  ░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░░░░░░░   ░░░░░░   ░░░░░░  ░░░░ ░░░░░
-        \n
-                                            ❖ FEED ❖\n`)
+        ❖ FEED ❖\n`)
 
         let postagens: Postagem[] = this._redeSocial.repoPostagens.postagens
         for (let i: number = 0; i < postagens.length; i++) {
@@ -416,35 +445,11 @@ class App {
         this.menu()
     }
 
-    public acessoAoPerfil(): void {
-        console.log("       Preencha os que quiser para encontrar sua conta.\n")
-        let id: number = +input("      Id: ")
-        let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
-
-        let perfil: Perfil | null = this._redeSocial.consultarPerfil(id, user, email)
-
-        if (perfil) {
-            console.log(`
-        Perfil Encontrado:
-
-        Id: ${perfil.id}
-        User: ${perfil.user}
-        E-mail: ${perfil.email}
-            `)
-
-        perfilLogado = perfil
-        
-        console.log(`Agora você está logado como o user ${perfilLogado.user}.`)
-
-        } else {
-            console.log("\n     Perfil nao encontrado!")
-        }
-        input("\nPressione Enter para retornar ao menu...")
-        this.menu()
-    }
-
     public curtir(): void {
+        this.titulo()
+        console.log(`
+        ❖ CURTIR POST ❖\n`)
+
         let id: number = +input("      Id: ")
 
         let postagem: Postagem[] = this._redeSocial.consultarPostagem(id)
@@ -474,6 +479,9 @@ class App {
     }
 
     public descurtir(): void {
+        this.titulo()
+        console.log(`
+        ❖ DESCURTIR POST ❖\n`)
         let id: number = +input("      Id: ")
 
         let postagem: Postagem[] = this._redeSocial.consultarPostagem(id)
@@ -503,10 +511,12 @@ class App {
     }
 
     public exibirPerfisPopulares(): void {
+        this.titulo()
+        console.log(`
+        ❖ PERFIS POPULARES ❖\n`)
 
         let perfisPopulares: Perfil[] = redeSocial.exibirPerfisPopulares(redeSocial.repoPerfis)
 
-        console.log('Usuários populares: ')
         for (let perfil of perfisPopulares) {
             console.log(`ID: ${perfil.id}`)
             console.log(`User: ${perfil.user}`)
@@ -517,19 +527,46 @@ class App {
 
     }
 
-    public bloquearPerfil(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
+    public exibirPostsPopulares(): void {
+        this.titulo()
+        console.log(`
+        ❖ POSTS POPULARES ❖\n`)
+
+        let postsPopulares: Postagem[] = redeSocial.exibirPostsPopulares(redeSocial.repoPostagens)
+
+        for (let post of postsPopulares) {
+            console.log(`
+            \x1b[1m@${post.perfil.user}\x1b[0m\n
+            ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
+            ${this.quebrarTextoEmLinhas(post.texto, 50)}`)
+            
+            let hashtags: string = ""
+            if (post instanceof PostagemAvancada) {
+                for (let hash of post.hashtags) {
+                    hashtags += "#" + hash + " "
+                }
+                console.log(`\n            \x1b[94m${hashtags}\x1b[0m`)
+                this._redeSocial.decrementarVisualizacoes(post)
+            }
+
+            console.log(`
+            ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`)
         }
 
-        console.log("       Preencha os que quiser para encontrar o perfil a bloquear.\n")
-        let id: number = +input("      Id: ")
-        let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
+        input("\nPressione Enter para retornar ao menu...")
+        this.menu()
 
-        let perfilBloquear: Perfil | null = this._redeSocial.consultarPerfil(id, user, email)
+    }
+
+    public bloquearPerfil(): void {
+        this.titulo()
+        console.log(`
+        ❖ BLOQUEAR PERFIL ❖\n`)
+
+        console.log("       Preencha o usuario do perfil que deseja bloquear.\n")
+        let user: string = input("      User: ")
+
+        let perfilBloquear: Perfil | null = this._redeSocial.consultarPerfil(undefined, user)
 
         if (perfilBloquear) {
             console.log(`
@@ -551,17 +588,13 @@ class App {
     }
 
     public desbloquearPerfil(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-        console.log("       Preencha os que quiser para encontrar o perfil a desbloquear.\n")
-        let id: number = +input("      Id: ")
+        this.titulo()
+        console.log(`
+        ❖ DESBLOQUEAR PERFIL ❖\n`)
+        console.log("       Preencha o usuario do perfil que deseja desbloquear.\n")
         let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
 
-        let perfilDesbloquear: Perfil | null = this._redeSocial.consultarPerfil(id, user, email)
+        let perfilDesbloquear: Perfil | null = this._redeSocial.consultarPerfil(undefined, user)
 
         if (perfilDesbloquear) {
             console.log(`
@@ -583,12 +616,9 @@ class App {
     }
 
     public exibirBloqueados(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-        console.log('Perfis Bloqueados:')
+        this.titulo()
+        console.log(`
+        ❖ PERFIS BLOQUEADOS ❖\n`)
         for (let bloqueado of perfilLogado.bloqueados) {
             console.log(`
             User Bloqueado: ${bloqueado.user}
@@ -600,6 +630,9 @@ class App {
     }
 
     public exibirPerfisAtivos(): void {
+        this.titulo()
+        console.log(`
+        ❖ PERFIS ATIVOS ❖\n`)
         let perfisAtivos: Perfil[] = redeSocial.exibirPerfisAtivos(redeSocial.repoPerfis, redeSocial.repoPostagens)
 
         for (let perfil of perfisAtivos) {
@@ -613,17 +646,13 @@ class App {
     }
 
     public seguirPerfil(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-        console.log("       Preencha os que quiser para encontrar o perfil que deseja seguir.\n")
-        let id: number = +input("      Id: ")
+        this.titulo()
+        console.log(`
+        ❖ SEGUIR PERFIL ❖\n`)
+        console.log("       Preencha o usuario do perfil que deseja seguir.\n")
         let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
 
-        let perfilSeguir: Perfil | null = this._redeSocial.consultarPerfil(id, user, email)
+        let perfilSeguir: Perfil | null = this._redeSocial.consultarPerfil(undefined, user)
 
         if (perfilSeguir) {
             console.log(`
@@ -645,29 +674,9 @@ class App {
     }
 
     public exibirSeguidores(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-        console.log('Perfis que o seguem:')
-        for (let seguidor of perfilLogado.seguidores) {
-            console.log(`
-            Seguidor: ${seguidor.user}
-                `)
-        }
-        input("\nPressione Enter para retornar ao menu...")
-        this.menu()
-    }
-
-    public exibirPostagensDoSeguidor(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-
-        console.log('Perfis que você segue:')
+        this.titulo()
+        console.log(`
+        ❖ SEGUIDORES ❖\n`)
         for (let seguido of perfilLogado.seguidos) {
             console.log(`
             Seguidor: ${seguido.user}
@@ -675,11 +684,9 @@ class App {
         }
 
         console.log("       Preencha os que quiser para acessar o seguidor.\n")
-        let id: number = +input("      Id: ")
         let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
 
-        let perfil: Perfil | null = <Perfil>(this._redeSocial.consultarPerfil(id, user, email))
+        let perfil: Perfil | null = <Perfil>(this._redeSocial.consultarPerfil(undefined, user))
         let ehSeguidor: boolean = false
 
         for (let seguidor of perfilLogado.seguidores) {
@@ -699,18 +706,18 @@ class App {
 
         let postagensSeguidor = redeSocial.exibirPostagensDoSeguidor(perfil)
 
-        console.log('Postagens do Seguidor:')
+        console.log('\nPostagens do Seguidor:')
         for (let postagem of postagensSeguidor) {
             console.log(`
             Postagem: ${postagem.texto}
             User: ${postagem.perfil.user}
             Data: ${postagem.data}`)
             if (postagem instanceof PostagemAvancada) {
-            let postagemAvancada = <PostagemAvancada>postagem
-            for (let hashtag of postagemAvancada.hashtags) {
-            console.log(`Hashtag: #${hashtag}`)
+                let postagemAvancada = <PostagemAvancada>postagem
+                for (let hashtag of postagemAvancada.hashtags) {
+                    console.log(`Hashtag: #${hashtag}`)
+                }
             }
-        }
         }
 
         } else {
@@ -721,25 +728,19 @@ class App {
     }
 
     public desseguirPerfil(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-
-        console.log('Perfis que você segue:')
+        this.titulo()
+        console.log(`
+        ❖ DEIXAR DE SEGUIR PERFIL ❖\n`)
         for (let seguido of perfilLogado.seguidos) {
             console.log(`
             Seguidor: ${seguido.user}
                 `)
         }
 
-        console.log("       Preencha os que quiser para acessar o perfil que deseja deixar de seguir.\n")
-        let id: number = +input("      Id: ")
+        console.log("       Preencha o usario do perfil que deseja deixar de seguir.\n")
         let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
 
-        let perfilDesseguir: Perfil | null = this._redeSocial.consultarPerfil(id, user, email)
+        let perfilDesseguir: Perfil | null = this._redeSocial.consultarPerfil(undefined, user)
 
         if (perfilDesseguir) {
             console.log(`
@@ -761,42 +762,19 @@ class App {
     }
 
     public exibirSeguindo(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-
-        console.log('Perfis que você segue:')
+        this.titulo()
+        console.log(`
+        ❖ PERFIS QUE VOCE SEGUE ❖\n`)
         for (let seguido of perfilLogado.seguidos) {
             console.log(`
-            Seguidor: ${seguido.user}
-                `)
-        }
-        input("\nPressione Enter para retornar ao menu...")
-        this.menu()
-    }
-
-    public exibirPostagensDoSeguido(): void {
-        if (perfilLogado == null) {
-            console.log("Você precisa estar logado para usar esta função! Logue e tente novamente.")
-            input("\nPressione Enter para retornar ao menu...")
-            this.menu()
-        }
-
-        console.log('Perfis que você segue:')
-        for (let seguido of perfilLogado.seguidos) {
-            console.log(`
-            Seguidor: ${seguido.user}
+            Seguido: ${seguido.user}
                 `)
         }
 
-        console.log("       Preencha os que quiser para acessar o seu seguido.\n")
-        let id: number = +input("      Id: ")
+        console.log("       Preencha o usuario do seu seguido para acessar as postagens.\n")
         let user: string = input("      User: ")
-        let email: string = input("      E-mail: ")
 
-        let perfil: Perfil | null = <Perfil>(this._redeSocial.consultarPerfil(id, user, email))
+        let perfil: Perfil | null = <Perfil>(this._redeSocial.consultarPerfil(undefined, user))
         let ehSeguido: boolean = false
 
         for (let seguido of perfilLogado.seguidos) {
@@ -823,11 +801,11 @@ class App {
             User: ${postagem.perfil.user}
             Data: ${postagem.data}`)
             if (postagem instanceof PostagemAvancada) {
-            let postagemAvancada = <PostagemAvancada>postagem
-            for (let hashtag of postagemAvancada.hashtags) {
-            console.log(`Hashtag: #${hashtag}`)
+                let postagemAvancada = <PostagemAvancada>postagem
+                for (let hashtag of postagemAvancada.hashtags) {
+                    console.log(`Hashtag: #${hashtag}`)
+                }
             }
-        }
         }
 
         } else {
@@ -835,8 +813,6 @@ class App {
         }
         input("\nPressione Enter para retornar ao menu...")
         this.menu()
-
-
     }
 
     public quebrarTextoEmLinhas(texto: string, maxCaracteresPorLinha: number): string {
@@ -860,4 +836,9 @@ class App {
 }
 let redeSocial: RedeSocial = new RedeSocial(new RepositorioDePerfis, new RepositorioDePostagens)
 let app: App = new App(redeSocial)
-app.menu()
+
+if (isLogado) {
+    app.menu()
+} else {
+    app.acessarApp()
+}

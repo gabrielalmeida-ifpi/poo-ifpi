@@ -12,7 +12,7 @@ class Postagem {
     }
     ehPopular() {
         // verifica se o numero de curtidas eh 50% maior que o numero de descurtidas
-        return this._curtidas == (this._descurtidas * 1.5);
+        return this._curtidas >= (this._descurtidas * 1.5);
     }
     get id() {
         return this._id;

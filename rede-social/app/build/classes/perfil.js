@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Perfil = void 0;
 class Perfil {
-    constructor(id, user, email) {
+    constructor(id, user, email, senha) {
         this._postagens = [];
         this._bloqueados = [];
         this._seguidores = [];
@@ -11,6 +11,7 @@ class Perfil {
         this._id = id;
         this._user = user;
         this._email = email;
+        this._senha = senha;
     }
     bloquear(perfilBloqueado) {
         this._bloqueados.push(perfilBloqueado);

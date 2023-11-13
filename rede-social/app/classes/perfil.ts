@@ -10,10 +10,11 @@ export class Perfil {
     private _senha: string = ''
     private _seguidos: Perfil[] = []
 
-    constructor(id: number, user: string, email: string) { //adicionei os bloqueados
+    constructor(id: number, user: string, email: string, senha: string) { //adicionei os bloqueados
         this._id = id
         this._user = user
         this._email = email
+        this._senha = senha
     }
 
     public bloquear(perfilBloqueado: Perfil) {

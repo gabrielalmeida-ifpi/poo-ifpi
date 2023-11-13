@@ -248,7 +248,7 @@ export class RedeSocial {
                } 
             }
             if (encontrou) {
-                perfilDesseguido.desseguir(perfilDesseguindo)
+                perfilDesseguindo.desseguir(perfilDesseguido)
                 return true
             }
         }

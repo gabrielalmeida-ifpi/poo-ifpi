@@ -111,12 +111,38 @@ class RedeSocial {
         }
         return perfis;
     }
-    bloquearPerfil(repoPerfis, perfilBloqueando, idBloqueado) {
-        for (let perfil of repoPerfis.perfis) {
-            if (perfil.id == idBloqueado) {
-                perfilBloqueando.bloqueados.push(perfil);
+    //public exibirHashtagsPopulares(repoPostagens: RepositorioDePostagens): string[] { }
+    bloquearPerfil(perfilBloqueando, id, user, email) {
+        let perfilBloqueado = this.consultarPerfil(id, user, email);
+        let encontrou = false;
+        if (perfilBloqueado != null) {
+            for (let bloqueado of perfilBloqueando.bloqueados) {
+                if (perfilBloqueado.id == bloqueado.id) {
+                    encontrou = true;
+                }
+            }
+            if (!encontrou) {
+                perfilBloqueando.bloquear(perfilBloqueado);
+                return true;
             }
         }
+        return false;
+    }
+    desbloquearPerfil(perfilDesbloqueando, id, user, email) {
+        let perfilDesbloqueado = this.consultarPerfil(id, user, email);
+        let encontrou = false;
+        if (perfilDesbloqueado != null) {
+            for (let bloqueado of perfilDesbloqueando.bloqueados) {
+                if (perfilDesbloqueado.id == bloqueado.id) {
+                    encontrou = true;
+                }
+            }
+            if (encontrou) {
+                perfilDesbloqueando.desbloquear(perfilDesbloqueado);
+                return true;
+            }
+        }
+        return false;
     }
     exibirPostAleatorio(repoPostagens) {
         let alcance = repoPostagens.postagens.length;
@@ -146,6 +172,52 @@ class RedeSocial {
                 (post.existeHashtag(hashtag));
         });
         return postsEncontrados;
+    }
+    seguirPerfil(perfilSeguindo, id, user, email) {
+        let perfilSeguido = this.consultarPerfil(id, user, email);
+        let encontrou = false;
+        if (perfilSeguido != null) {
+            for (let seguidor of perfilSeguido.seguidores) {
+                if (seguidor.id == perfilSeguindo.id) {
+                    encontrou = true;
+                }
+            }
+            if (!encontrou) {
+                perfilSeguindo.seguir(perfilSeguido);
+                return true;
+            }
+        }
+        return false;
+    }
+    desseguirPerfil(perfilDesseguindo, id, user, email) {
+        let perfilDesseguido = this.consultarPerfil(id, user, email);
+        let encontrou = false;
+        if (perfilDesseguido != null) {
+            for (let seguidor of perfilDesseguido.seguidores) {
+                if (seguidor.id == perfilDesseguindo.id) {
+                    encontrou = true;
+                }
+            }
+            if (encontrou) {
+                perfilDesseguido.desseguir(perfilDesseguindo);
+                return true;
+            }
+        }
+        return false;
+    }
+    exibirSeguidores(id, user, email) {
+        let perfil = this.consultarPerfil(id, user, email);
+        let seguidores = [];
+        if (perfil != null) {
+            for (let seguidor of perfil.seguidores) {
+                seguidores.push(seguidor);
+            }
+        }
+        return seguidores;
+    }
+    exibirPostagensDoSeguidor(seguidor) {
+        const postagensOrdenadas = seguidor.postagens.sort((a, b) => b.data.getTime() - a.data.getTime());
+        return postagensOrdenadas;
     }
     get repoPerfis() {
         return this._repoPerfis;

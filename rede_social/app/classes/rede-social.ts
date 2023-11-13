@@ -142,6 +142,8 @@ export class RedeSocial {
         return perfis
     }
 
+    //public exibirHashtagsPopulares(repoPostagens: RepositorioDePostagens): string[] { }
+
     public bloquearPerfil(perfilBloqueando: Perfil, id?: number, user?: string, email?: string): boolean {
         let perfilBloqueado: Perfil | null = this.consultarPerfil(id, user, email)
         let encontrou: boolean = false
@@ -267,15 +269,11 @@ export class RedeSocial {
         return seguidores
     }
 
-    public exibirPostagensDoSeguidor(id?: number, user?: string, email?: string): Postagem[] | null {
-        let seguidor: Perfil | null = this.consultarPerfil(id, user, email)
-
-        if (seguidor != null) {
-        return seguidor.postagens
-        }
-
-        return null
+    public exibirPostagensDoSeguidor(seguidor: Perfil): Postagem[] {
+            const postagensOrdenadas = seguidor.postagens.sort((a, b) => b.data.getTime() - a.data.getTime());    
+            return postagensOrdenadas;
     }
+    
 
     public get repoPerfis() : RepositorioDePerfis {
         return this._repoPerfis

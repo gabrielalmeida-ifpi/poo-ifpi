@@ -7,6 +7,7 @@ export class Perfil {
     private _postagens: Postagem[] = []
     private _bloqueados: Perfil[] = []
     private _seguidores: Perfil[] = []
+    private _senha: string = ''
     //private _seguidos: Perfil[] = []
 
     constructor(id: number, user: string, email: string) { //adicionei os bloqueados
@@ -78,4 +79,8 @@ export class Perfil {
     // public get seguidos() : Perfil[] {
     //     return this._seguidos
     // }
+
+    public get senha() : string {
+        return this._senha
+    }
 }

@@ -8,7 +8,7 @@ export class Banco {
 	public inserir(conta: Conta | Poupanca): void {
         try {
         let contaConsultada = this.consultar(conta.numero);
-        console.log(`Conta ${conta.numero} já cadastrada`);
+        console.log(`Conta ${conta.numero} já cadastrada`); //Valores repetidos: Q.13
     } catch (error: any) {
 		if (conta instanceof Poupanca) {
 			this.contas.push(<Poupanca>conta)

@@ -47,9 +47,9 @@ do {
         default:
             console.log("Opcao invalida")
     }
-} catch (e: any) {
+} catch (e: any) { //Questão 14:
     // if (e instanceof AplicacaoError) {
-         console.log(e.message)
+         console.log(e.message) 
     // }
     // if (e instanceof Error) {
     //     console.log("Erro no sistema. Contate o administrador.")

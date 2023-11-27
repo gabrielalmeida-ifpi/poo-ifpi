@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var input = require('prompt-sync')();
+var conta_1 = require("../classes-respostas/conta");
+var banco_1 = require("../classes-respostas/banco");
+var b = new banco_1.Banco();
+b.inserir(new conta_1.Conta("123", 100));
+b.inserir(new conta_1.Conta("234", 150));
+input("Contas inseridas. <enter> para continuar.");
+b.transferir("123", "234", 9999999);

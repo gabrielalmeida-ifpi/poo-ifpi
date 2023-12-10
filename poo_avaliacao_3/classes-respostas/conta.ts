@@ -1,3 +1,24 @@
+/**
+ * 10. Implemente o diagrama de classes abaixo:
+ */
+
+/**
+ * 11. Crie uma classe chamada AuditoriaInterna que tenha dois métodos que tenha um
+* array de Tributaveis e os métodos:
+*
+* a. adicionar(Tributável);
+*
+* b. calcularTributos(): retorna um double que representa a soma de todos os
+* cálculos dos tributos de todos os tributáveis;
+*
+* c. Crie uma classe de testes que instancie várias classes ContaCorrente e
+* SeguroDeVida, adicione-as na classe AuditoriaInterna e exiba o resultado
+* do método calculaTributos. Perceba que a classe de auditoria não se
+* preocupa que tipo de classe está sendo passada.
+ */
+
+
+
 export interface Tributavel {
     calculaTributos(): number
 }

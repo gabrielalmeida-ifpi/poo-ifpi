@@ -105,6 +105,7 @@ export class Circulo implements FiguraGeometrica, IComparavel {
     }
 }
 
+//Questão 9 - Classe de Testes
 export class TesteFiguras {
     constructor(private figura1: FiguraGeometrica & IComparavel, private figura2: FiguraGeometrica & IComparavel) {}
 
@@ -113,7 +114,7 @@ export class TesteFiguras {
     }
 }
 
-//Script - Questão 7
+//Questão 7 - Teste
 
 let quadrado: Quadrado = new Quadrado(5)
 let triangulo: Triangulo = new Triangulo(3)
@@ -141,7 +142,7 @@ console.log(`Perímetro: ${circulo.calcularPerimetro()}`)
 /////////////////////////////////////////////////////////////////////////
 
 
-//Script - Questão 8
+//Questão 8 e 9 - Teste
 
 console.log(`\n`)
 console.log("Teste - Questão 8:")

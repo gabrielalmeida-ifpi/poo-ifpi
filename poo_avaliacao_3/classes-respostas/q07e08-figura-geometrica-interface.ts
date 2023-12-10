@@ -8,6 +8,9 @@
  * resultado. Implemente em cada uma das classes do exemplo anterior a interface
  * retornando -1, 0 e 1 caso a área da forma seja menor, igual ou maior que a
  * passada via parâmetro.
+ * 9. Crie uma classe para testar os exemplos anteriores. Instancie várias formas
+ * diferentes. Pegue duas formas chame em uma delas o método comparar
+ * passando a outra como parâmetro e exiba o resultado. Repita para outras formas.
  */
 
 import { Teste } from "./conta"

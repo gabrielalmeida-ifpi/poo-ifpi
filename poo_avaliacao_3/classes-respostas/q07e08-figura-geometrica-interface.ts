@@ -14,8 +14,6 @@
  * passando a outra como parâmetro e exiba o resultado. Repita para outras formas.
  */
 
-import { Teste } from "./conta"
-
 export interface FiguraGeometrica {
     calcularArea(): number
     calcularPerimetro(): number

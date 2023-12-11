@@ -2,10 +2,16 @@ import { Postagem } from "./postagem"
 import { Perfil } from "./perfil"
 import { PostagemAvancada } from "./postagem-avancada"
 
-export class RepositorioDePostagens {
-    private _postagens: Postagem[] = []
+export interface IRepositorioDePostagens {
+    inserir(postagem: Postagem): void;
+    consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil | null): Postagem[];
+}
 
-    public incluir(postagem: Postagem): void {
+export class RepositorioDePostagens implements IRepositorioDePostagens {
+    private _postagens: Postagem[] = []
+    private _hashtags: string[] = []
+
+    public inserir(postagem: Postagem): void {
         this._postagens.push(postagem)
         if (postagem.perfil) {
             postagem.perfil.postagens.push(postagem)
@@ -32,6 +38,18 @@ export class RepositorioDePostagens {
     
     public get postagens() : Postagem[] {
         return this._postagens
+    }
+
+    public set postagens(postagens: Postagem[]) {
+        this._postagens = postagens
+    }
+
+    public get hashtags() : string[] {
+        return this._hashtags
+    }
+
+    public set hashtags(hashtags: string[]) {
+        this._hashtags = hashtags
     }
     
 }

@@ -1,51 +1,40 @@
 import { Perfil } from "./perfil";
 import { Postagem } from "./postagem";
 import { PostagemAvancada } from "./postagem-avancada";
-import { RepositorioDePerfis } from "./repositorio-perfis";
-import { RepositorioDePostagens } from "./repositorio-postagens";
+import { RepositorioDePerfis, IRepositorioDePerfis } from "./repositorio-perfis";
+import { RepositorioDePostagens, IRepositorioDePostagens } from "./repositorio-postagens";
 
 export class RedeSocial {
-    private _repoPerfis: RepositorioDePerfis
-    private _repoPostagens: RepositorioDePostagens
+    private _repoPerfis: IRepositorioDePerfis
+    private _repoPostagens: IRepositorioDePostagens
 
-    constructor(repoPerfis: RepositorioDePerfis, repoPostagens: RepositorioDePostagens) {
+    constructor(repoPerfis: IRepositorioDePerfis, repoPostagens: IRepositorioDePostagens) {
         this._repoPerfis = repoPerfis
         this._repoPostagens = repoPostagens
     }
 
-    public incluirPerfil(perfil: Perfil): boolean {
-        let existe: boolean = false
-        for (let i: number = 0; i < this._repoPerfis.perfis.length; i++) {
-            if (this._repoPerfis.perfis[i].id == perfil.id) {
-                existe = true
-            }
+    inserirPerfil(perfil: Perfil): boolean {
+        if (this._repoPerfis.consultar(perfil.id, perfil.user, perfil.email) ){
+            return false
         }
-
-        if (!(existe) && perfil.user != undefined && perfil.email != undefined) {
-            this._repoPerfis.incluir(perfil)
-            return true
-        }
-        return false
-    }   
+        this._repoPerfis.inserir(perfil);
+        return true
+    }
 
     public consultarPerfil(id?: number, user?: string, email?: string, senha?: string): Perfil | null {
         return this._repoPerfis.consultar(id, user, email, senha)
     }
 
-    public incluirPostagem(postagem: Postagem): boolean {
-        let existe: boolean = false
-        for (let i: number = 0; i < this._repoPostagens.postagens.length; i++) {
-            if (this.repoPostagens.postagens[i].id == postagem.id) {
-                existe = true
-            }
-        }
+    public logar(user: string, senha: string): Perfil | null {
+        return this._repoPerfis.logar(user, senha)
+    }
 
-        if (!(existe) && postagem.texto != undefined && postagem.perfil != undefined) {
-            this._repoPostagens.incluir(postagem)
-            return true
+    public inserirPostagem(postagem: Postagem): boolean {
+        if (this._repoPostagens.consultar(postagem.id) ){
+            return false
         }
-
-        return false
+        this._repoPostagens.inserir(postagem);
+        return true
     }
 
     public consultarPostagem(id?: number, texto?: string, hashtag?: string, perfil: Perfil | null = null): Postagem[] {
@@ -53,9 +42,7 @@ export class RedeSocial {
     }
 
     public curtir(idPost: number): void {
-        const postagemEncontrada = this._repoPostagens.postagens.find((postagem) => {
-            return (postagem.id == idPost)
-        })
+        const postagemEncontrada = this._repoPostagens.consultar(idPost)[0]
 
         if (postagemEncontrada) {
             postagemEncontrada.curtir()
@@ -63,9 +50,7 @@ export class RedeSocial {
     }
 
     public descurtir(idPost: number): void {
-        const postagemEncontrada = this._repoPostagens.postagens.find((postagem) => {
-            return (postagem.id == idPost)
-        })
+        const postagemEncontrada = this._repoPostagens.consultar(idPost)[0]
 
         if (postagemEncontrada) {
             postagemEncontrada.descurtir()
@@ -84,9 +69,7 @@ export class RedeSocial {
     }
 
     public exibirPostPerfil(id: number): Postagem[] {
-        const perfilEncontrado = this._repoPerfis.perfis.find((perfil) => {
-            return (perfil.id == id)
-        } ) 
+        const perfilEncontrado =  this._repoPerfis.consultar(id)
 
         let posts: Postagem[] = []
 
@@ -106,7 +89,7 @@ export class RedeSocial {
         return posts
     }
 
-    public exibirPostsPopulares(repoPostagens: RepositorioDePostagens): Postagem[] { //Q.8 a)
+    public exibirPostsPopulares(repoPostagens: IRepositorioDePostagens): Postagem[] { //Q.8 a)
         let posts: Postagem[] = []
         
         for (let post of repoPostagens.postagens) {
@@ -121,7 +104,7 @@ export class RedeSocial {
         return posts
     }
 
-    public exibirPerfisPopulares(repoPerfis: RepositorioDePerfis): Perfil[] { //func. adicional 1
+    public exibirPerfisPopulares(repoPerfis: IRepositorioDePerfis): Perfil[] { //func. adicional 1
         let perfis: Perfil[] = []
 
         for (let perfil of repoPerfis.perfis){
@@ -141,7 +124,7 @@ export class RedeSocial {
         return perfis
     }
 
-    //public exibirHashtagsPopulares(repoPostagens: RepositorioDePostagens): string[] { }
+    //public exibirHashtagsPopulares(repoPostagens: IRepositorioDePostagens): string[] { }
 
     public bloquearPerfil(perfilBloqueando: Perfil, id?: number, user?: string, email?: string): boolean {
         let perfilBloqueado: Perfil | null = this.consultarPerfil(id, user, email)
@@ -181,7 +164,7 @@ export class RedeSocial {
         return false
     }
 
-    public exibirPostAleatorio(repoPostagens: RepositorioDePostagens): Postagem { //func. adicional que o rafael achou inutil
+    public exibirPostAleatorio(repoPostagens: IRepositorioDePostagens): Postagem { //func. adicional que o rafael achou inutil
         let alcance: number = repoPostagens.postagens.length
         let idAleatorio = Math.floor(Math.random() * alcance) + 1
         
@@ -193,7 +176,7 @@ export class RedeSocial {
         return this.consultarPostagem(idAleatorio)[0]
     }
 
-    public exibirPerfisAtivos(repoPerfis: RepositorioDePerfis, repoPostagens: RepositorioDePostagens): Perfil[] { //func. adicional 3
+    public exibirPerfisAtivos(repoPerfis: IRepositorioDePerfis, repoPostagens: IRepositorioDePostagens): Perfil[] { //func. adicional 3
         let perfis: Perfil[] = []
         let numDePostagens: number = repoPostagens.postagens.length
         let numDePerfis: number = repoPerfis.perfis.length
@@ -208,6 +191,7 @@ export class RedeSocial {
         return perfis
     }
 
+    //Não faço ideia de como consertar isso:
     public exibirPostsHashtag(hashtag: string): Postagem[] {
         const postsEncontrados = this._repoPostagens.postagens.filter((post) => {
             return (post instanceof PostagemAvancada) &&
@@ -216,6 +200,7 @@ export class RedeSocial {
 
         return postsEncontrados
     }
+    //////////////////////////////////////////////////////////  
 
     public seguirPerfil(perfilSeguindo: Perfil, id?: number, user?: string, email?: string): boolean {
         let perfilSeguido: Perfil | null = this.consultarPerfil(id, user, email)
@@ -288,11 +273,11 @@ export class RedeSocial {
     }
     
 
-    public get repoPerfis() : RepositorioDePerfis {
+    public get repoPerfis() : IRepositorioDePerfis {
         return this._repoPerfis
     }
     
-    public get repoPostagens() : RepositorioDePostagens {
+    public get repoPostagens() : IRepositorioDePostagens {
         return this._repoPostagens
     }
     

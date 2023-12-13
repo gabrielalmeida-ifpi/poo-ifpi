@@ -32,7 +32,7 @@ export class RedeSocial {
         return this._repoPerfis.consultar(id, user, email, senha)
     }
 
-    public logar(user: string, senha: string): Perfil | null {
+    public logar(user: string, senha: string): Perfil {
         return this._repoPerfis.logar(user, senha)
     }
 
@@ -155,23 +155,12 @@ export class RedeSocial {
         }
     }
 
-    public desbloquearPerfil(perfilDesbloqueando: Perfil, id?: number, user?: string, email?: string): boolean {
+    public desbloquearPerfil(perfilDesbloqueando: Perfil, id?: number, user?: string, email?: string) {
         let perfilDesbloqueado: Perfil | null = this.consultarPerfil(id, user, email)
-        let encontrou: boolean = false
 
-        if (perfilDesbloqueado != null) {
-            for (let bloqueado of perfilDesbloqueando.bloqueados) {
-               if (perfilDesbloqueado.id == bloqueado.id) {
-                encontrou = true
-               } 
-            }
-            if (encontrou) {
-                perfilDesbloqueando.desbloquear(perfilDesbloqueado)
-                return true
-            }
+        if (perfilDesbloqueado) {
+        perfilDesbloqueando.desbloquear(perfilDesbloqueado)
         }
-
-        return false
     }
 
     public exibirPostAleatorio(repoPostagens: IRepositorioDePostagens): Postagem { //func. adicional que o rafael achou inutil

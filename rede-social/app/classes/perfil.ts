@@ -1,4 +1,4 @@
-import { BloquearError } from "./error"
+import { AplicacaoError, BloquearError } from "./error"
 import { Postagem } from "./postagem"
 
 export class Perfil {
@@ -49,34 +49,56 @@ export class Perfil {
 
     //alterado
      public removerSeguidor(seguidorRemovido: Perfil) {
-         for (let seguidor of this._seguidores) {
-             try {
-                if (seguidorRemovido.id == seguidor._id) {
-                 let indiceRemovido: number = this._seguidores.indexOf(seguidor)
-                 this._seguidores.splice(indiceRemovido, 1)
-                }
-             } catch (error: any) {
-                console.log("Perfil nao eh seguidor");
-                
-             }
-         }
-     }
+        let indiceRemovido: number = -1
+        
+        for (let seguidor of this._seguidores) {
+            if (seguidorRemovido.id == seguidor._id) {
+                indiceRemovido = this._seguidores.indexOf(seguidor)
+            }
+        }
+
+        if (indiceRemovido != -1) {
+        this._seguidores.splice(indiceRemovido, 1)
+        } else {
+            throw new AplicacaoError("Voce nao segue essa pessoa!")
+        }    
+    }
 
     public desseguir(desseguindo: Perfil): void {
-        for (let seguidor of this._seguidores) {
-            if (desseguindo.id == seguidor._id) {
-                let indiceRemovido: number = this._seguidores.indexOf(seguidor)
-                this._seguidores.splice(indiceRemovido, 1)
+        let verificacao: boolean = false
+        let seguidoEncontrado: Perfil = new Perfil(0, '', '', '')
+        for (let seguido of this._seguidos) {
+            if (desseguindo.id == seguido._id) {
+                verificacao = true
+                seguidoEncontrado = seguido
+                break
             }
+        }
+
+        if (verificacao) {
+            let indiceRemovido: number = this._seguidores.indexOf(seguidoEncontrado)
+            this._seguidos.splice(indiceRemovido, 1)
+        } else {
+            throw new Error("Voce nao esta seguindo esse perfil")
         }
     }
 
     public desbloquear(desbloqueado: Perfil): void {
+        let verificacao: boolean = false
+        let bloqueadoEncontrado: Perfil = new Perfil(0, '', '', '')
         for (let bloqueado of this._bloqueados) {
             if (desbloqueado.id == bloqueado._id) {
-                let indiceRemovido: number = this._bloqueados.indexOf(bloqueado)
-                this._bloqueados.splice(indiceRemovido, 1)
+                verificacao = true
+                bloqueadoEncontrado = bloqueado
+                break
             }
+        }
+
+        if (verificacao) {
+            let indiceRemovido: number = this._bloqueados.indexOf(bloqueadoEncontrado)
+            this._bloqueados.splice(indiceRemovido, 1)
+        } else {
+            throw new Error("Este perfil nao esta bloqueado")   
         }
     }
     

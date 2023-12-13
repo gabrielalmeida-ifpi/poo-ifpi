@@ -11,6 +11,7 @@ const rede_social_1 = require("./classes/rede-social");
 const repositorio_perfis_1 = require("./classes/repositorio-perfis");
 const repositorio_postagens_1 = require("./classes/repositorio-postagens");
 const prompt_sync_1 = __importDefault(require("prompt-sync"));
+const error_1 = require("./classes/error");
 let input = (0, prompt_sync_1.default)();
 let idGlobal = 1;
 let idPostGlobal = 1;
@@ -65,6 +66,7 @@ class App {
         }
         catch (e) {
             console.log(e.message);
+            input("\n          Pressione Enter para retornar ao menu...");
             this.acessarApp();
         }
     }
@@ -75,18 +77,11 @@ class App {
         let user = input("          User: ");
         let senha = input("          Senha: ");
         let perfil = this._redeSocial.logar(user, senha);
-        if (perfil) {
-            perfilLogado = perfil;
-            isLogado = true;
-            console.log(`\n          Agora você está logado como o user ${perfilLogado.user}.`);
-            input("\n          Pressione Enter para retornar ao menu...");
-            this.menu();
-        }
-        else {
-            console.log("\n          Usuario ou senha incorretos!");
-            input("\n          Pressione Enter para retornar ao menu...");
-            this.acessarApp();
-        }
+        perfilLogado = perfil;
+        isLogado = true;
+        console.log(`\n          Agora você está logado como o user ${perfilLogado.user}.`);
+        input("\n          Pressione Enter para retornar ao menu...");
+        this.menu();
     }
     consultar() {
         this.titulo();
@@ -98,6 +93,9 @@ class App {
         - Para pesquisar perfis, utilize (@) antes do usuario
         - Para pesquisar postagens por hahstags, utilize (#) antes da hahstag\n`);
         let busca = input("          | ");
+        if (!busca) {
+            busca = "";
+        }
         if (/^@/.test(busca)) {
             let user = busca.substring(1);
             let perfil = this._redeSocial.consultarPerfil(undefined, user);
@@ -123,6 +121,7 @@ class App {
             this.menu();
         }
         else {
+            throw new error_1.AplicacaoError("Voce digitou um valor incorreto! Tente novamente.");
         }
     }
     menu() {
@@ -699,6 +698,9 @@ class App {
         }
         console.log("       Preencha o usuario do seu seguido para acessar as postagens.\n");
         let user = input("      User: ");
+        if (!user) {
+            user = "";
+        }
         let perfil = (this._redeSocial.consultarPerfil(undefined, user));
         let ehSeguido = false;
         for (let seguido of perfilLogado.seguidos) {

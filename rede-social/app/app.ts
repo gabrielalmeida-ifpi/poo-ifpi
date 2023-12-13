@@ -8,6 +8,7 @@ import { RepositorioDePostagens, IRepositorioDePostagens } from "./classes/repos
 import prompt from 'prompt-sync'
 
 import * as fs from 'fs-extra'
+import { AplicacaoError } from "./classes/error"
 
 let input = prompt()
 let idGlobal: number = 1
@@ -71,7 +72,8 @@ class App {
             }
         } catch (e: any) {
             console.log(e.message)
-            this.acessarApp() 
+            input("\n          Pressione Enter para retornar ao menu...")
+            this.acessarApp()
         } 
     }
 
@@ -82,22 +84,15 @@ class App {
         let user: string = input("          User: ")
         let senha: string = input("          Senha: ")
 
-        let perfil: Perfil | null = this._redeSocial.logar(user, senha)
-
-        if (perfil) {
-            perfilLogado = perfil
-            isLogado = true
-
-            console.log(`\n          Agora você está logado como o user ${perfilLogado.user}.`)
-
-            input("\n          Pressione Enter para retornar ao menu...")
-            this.menu()
-        } else {
-            console.log("\n          Usuario ou senha incorretos!")
-
-            input("\n          Pressione Enter para retornar ao menu...")
-            this.acessarApp()
-        }
+        let perfil: Perfil = this._redeSocial.logar(user, senha)
+        
+        perfilLogado = perfil
+        isLogado = true
+        console.log(`\n          Agora você está logado como o user ${perfilLogado.user}.`)
+        
+        input("\n          Pressione Enter para retornar ao menu...")
+        this.menu()
+        
     }
 
     public consultar(): void {
@@ -111,6 +106,9 @@ class App {
         - Para pesquisar postagens por hahstags, utilize (#) antes da hahstag\n`)
 
         let busca: string = input("          | ")
+
+        if (!busca) { busca = "" }
+    
         if (/^@/.test(busca)) {
             let user: string = busca.substring(1)
             let perfil: Perfil | null = this._redeSocial.consultarPerfil(undefined, user)
@@ -135,7 +133,7 @@ class App {
             input("\n          Pressione Enter para retornar ao menu...")
             this.menu()
         } else {
-
+            throw new AplicacaoError("Voce digitou um valor incorreto! Tente novamente.")
         }
 
     }
@@ -807,6 +805,8 @@ class App {
 
         console.log("       Preencha o usuario do seu seguido para acessar as postagens.\n")
         let user: string = input("      User: ")
+
+        if (!user) { user = "" }
 
         let perfil: Perfil | null = <Perfil>(this._redeSocial.consultarPerfil(undefined, user))
         let ehSeguido: boolean = false

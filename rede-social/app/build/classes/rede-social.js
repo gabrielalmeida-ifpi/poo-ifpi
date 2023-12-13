@@ -123,19 +123,9 @@ class RedeSocial {
     }
     desbloquearPerfil(perfilDesbloqueando, id, user, email) {
         let perfilDesbloqueado = this.consultarPerfil(id, user, email);
-        let encontrou = false;
-        if (perfilDesbloqueado != null) {
-            for (let bloqueado of perfilDesbloqueando.bloqueados) {
-                if (perfilDesbloqueado.id == bloqueado.id) {
-                    encontrou = true;
-                }
-            }
-            if (encontrou) {
-                perfilDesbloqueando.desbloquear(perfilDesbloqueado);
-                return true;
-            }
+        if (perfilDesbloqueado) {
+            perfilDesbloqueando.desbloquear(perfilDesbloqueado);
         }
-        return false;
     }
     exibirPostAleatorio(repoPostagens) {
         let alcance = repoPostagens.postagens.length;

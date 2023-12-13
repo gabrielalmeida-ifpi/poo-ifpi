@@ -1,8 +1,9 @@
+import { AplicacaoError } from "./error";
 import { Perfil } from "./perfil"
 
 export interface IRepositorioDePerfis {
     perfis: Perfil[];
-    logar(user: string, senha: string): Perfil | null;
+    logar(user: string, senha: string): Perfil;
     incluir(perfil: Perfil): void;
     consultar(id?: number, nome?: string, email?: string, senha?: string): Perfil | null;
 }
@@ -25,12 +26,15 @@ export class RepositorioDePerfis implements IRepositorioDePerfis {
         return perfilEncontrado || null
     }
 
-    public logar(user: string, senha: string): Perfil | null {
+    public logar(user: string, senha: string): Perfil {
         const perfilLogado = this._perfis.find((perfil) => {
             return (perfil.user == user) && (perfil.senha == senha)
-        })
+        }) 
 
-        return perfilLogado || null
+        if (!perfilLogado) {
+            throw new AplicacaoError("Usuario inexistente ou senha invalida!")
+        }
+        return perfilLogado
     }
     
     public get perfis() : Perfil[] {

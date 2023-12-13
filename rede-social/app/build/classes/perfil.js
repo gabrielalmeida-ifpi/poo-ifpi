@@ -41,32 +41,53 @@ class Perfil {
     }
     //alterado
     removerSeguidor(seguidorRemovido) {
+        let indiceRemovido = -1;
         for (let seguidor of this._seguidores) {
-            try {
-                if (seguidorRemovido.id == seguidor._id) {
-                    let indiceRemovido = this._seguidores.indexOf(seguidor);
-                    this._seguidores.splice(indiceRemovido, 1);
-                }
+            if (seguidorRemovido.id == seguidor._id) {
+                indiceRemovido = this._seguidores.indexOf(seguidor);
             }
-            catch (error) {
-                console.log("Perfil nao eh seguidor");
-            }
+        }
+        if (indiceRemovido != -1) {
+            this._seguidores.splice(indiceRemovido, 1);
+        }
+        else {
+            throw new error_1.AplicacaoError("Voce nao segue essa pessoa!");
         }
     }
     desseguir(desseguindo) {
-        for (let seguidor of this._seguidores) {
-            if (desseguindo.id == seguidor._id) {
-                let indiceRemovido = this._seguidores.indexOf(seguidor);
-                this._seguidores.splice(indiceRemovido, 1);
+        let verificacao = false;
+        let seguidoEncontrado = new Perfil(0, '', '', '');
+        for (let seguido of this._seguidos) {
+            if (desseguindo.id == seguido._id) {
+                verificacao = true;
+                seguidoEncontrado = seguido;
+                break;
             }
+        }
+        if (verificacao) {
+            let indiceRemovido = this._seguidores.indexOf(seguidoEncontrado);
+            this._seguidos.splice(indiceRemovido, 1);
+        }
+        else {
+            throw new Error("Voce nao esta seguindo esse perfil");
         }
     }
     desbloquear(desbloqueado) {
+        let verificacao = false;
+        let bloqueadoEncontrado = new Perfil(0, '', '', '');
         for (let bloqueado of this._bloqueados) {
             if (desbloqueado.id == bloqueado._id) {
-                let indiceRemovido = this._bloqueados.indexOf(bloqueado);
-                this._bloqueados.splice(indiceRemovido, 1);
+                verificacao = true;
+                bloqueadoEncontrado = bloqueado;
+                break;
             }
+        }
+        if (verificacao) {
+            let indiceRemovido = this._bloqueados.indexOf(bloqueadoEncontrado);
+            this._bloqueados.splice(indiceRemovido, 1);
+        }
+        else {
+            throw new Error("Este perfil nao esta bloqueado");
         }
     }
     get id() {

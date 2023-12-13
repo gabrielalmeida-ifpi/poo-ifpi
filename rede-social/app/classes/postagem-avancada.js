@@ -47,6 +47,9 @@ var PostagemAvancada = /** @class */ (function (_super) {
         get: function () {
             return this._hashtags;
         },
+        set: function (hashtags) {
+            hashtags = hashtags;
+        },
         enumerable: false,
         configurable: true
     });

@@ -5,8 +5,9 @@ var postagem_avancada_1 = require("./postagem-avancada");
 var RepositorioDePostagens = /** @class */ (function () {
     function RepositorioDePostagens() {
         this._postagens = [];
+        this._hashtags = [];
     }
-    RepositorioDePostagens.prototype.incluir = function (postagem) {
+    RepositorioDePostagens.prototype.inserir = function (postagem) {
         this._postagens.push(postagem);
         if (postagem.perfil) {
             postagem.perfil.postagens.push(postagem);
@@ -30,6 +31,19 @@ var RepositorioDePostagens = /** @class */ (function () {
     Object.defineProperty(RepositorioDePostagens.prototype, "postagens", {
         get: function () {
             return this._postagens;
+        },
+        set: function (postagens) {
+            this._postagens = postagens;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(RepositorioDePostagens.prototype, "hashtags", {
+        get: function () {
+            return this._hashtags;
+        },
+        set: function (hashtags) {
+            this._hashtags = hashtags;
         },
         enumerable: false,
         configurable: true

@@ -7,51 +7,38 @@ var RedeSocial = /** @class */ (function () {
         this._repoPerfis = repoPerfis;
         this._repoPostagens = repoPostagens;
     }
-    RedeSocial.prototype.incluirPerfil = function (perfil) {
-        var existe = false;
-        for (var i = 0; i < this._repoPerfis.perfis.length; i++) {
-            if (this._repoPerfis.perfis[i].id == perfil.id) {
-                existe = true;
-            }
+    RedeSocial.prototype.inserirPerfil = function (perfil) {
+        if (this._repoPerfis.consultar(perfil.id, perfil.user, perfil.email)) {
+            return false;
         }
-        if (!(existe) && perfil.user != undefined && perfil.email != undefined) {
-            this._repoPerfis.incluir(perfil);
-            return true;
-        }
-        return false;
+        this._repoPerfis.inserir(perfil);
+        return true;
     };
-    RedeSocial.prototype.consultarPerfil = function (id, user, email) {
-        return this._repoPerfis.consultar(id, user, email);
+    RedeSocial.prototype.consultarPerfil = function (id, user, email, senha) {
+        return this._repoPerfis.consultar(id, user, email, senha);
     };
-    RedeSocial.prototype.incluirPostagem = function (postagem) {
-        var existe = false;
-        for (var i = 0; i < this._repoPostagens.postagens.length; i++) {
-            if (this.repoPostagens.postagens[i].id == postagem.id) {
-                existe = true;
-            }
+    RedeSocial.prototype.logar = function (user, senha) {
+        return this._repoPerfis.logar(user, senha);
+    };
+    RedeSocial.prototype.inserirPostagem = function (postagem) {
+        if (this._repoPostagens.consultar(postagem.id)) {
+            return false;
         }
-        if (!(existe) && postagem.texto != undefined && postagem.perfil != undefined) {
-            this._repoPostagens.incluir(postagem);
-            return true;
-        }
-        return false;
+        this._repoPostagens.inserir(postagem);
+        return true;
     };
     RedeSocial.prototype.consultarPostagem = function (id, texto, hashtag, perfil) {
         if (perfil === void 0) { perfil = null; }
         return this._repoPostagens.consultar(id, texto, hashtag, perfil);
     };
     RedeSocial.prototype.curtir = function (idPost) {
-        var postagemEncontrada = this._repoPostagens.postagens.find(function (postagem) {
-            return (postagem.id == idPost);
-        });
+        var postagemEncontrada = this._repoPostagens.consultar(idPost)[0];
         if (postagemEncontrada) {
             postagemEncontrada.curtir();
         }
     };
     RedeSocial.prototype.descurtir = function (idPost) {
-        var postagemEncontrada = this._repoPostagens.postagens.find(function (postagem) {
-            return (postagem.id == idPost);
-        });
+        var postagemEncontrada = this._repoPostagens.consultar(idPost)[0];
         if (postagemEncontrada) {
             postagemEncontrada.descurtir();
         }
@@ -66,15 +53,13 @@ var RedeSocial = /** @class */ (function () {
         return false;
     };
     RedeSocial.prototype.exibirPostPerfil = function (id) {
-        var perfilEncontrado = this._repoPerfis.perfis.find(function (perfil) {
-            return (perfil.id == id);
-        });
+        var perfilEncontrado = this._repoPerfis.consultar(id);
         var posts = [];
         if (perfilEncontrado) {
             for (var _i = 0, _a = perfilEncontrado.postagens; _i < _a.length; _i++) {
                 var post = _a[_i];
                 if (post instanceof postagem_avancada_1.PostagemAvancada) {
-                    if (this.ehExibivel(post)) { //Coloquei a verificação no método ehExibivel
+                    if (this.ehExibivel(post)) {
                         posts.push(post);
                         post.decrementarVisualizacoes();
                     }
@@ -116,13 +101,40 @@ var RedeSocial = /** @class */ (function () {
         }
         return perfis;
     };
-    RedeSocial.prototype.bloquearPerfil = function (repoPerfis, perfilBloqueando, idBloqueado) {
-        for (var _i = 0, _a = repoPerfis.perfis; _i < _a.length; _i++) {
-            var perfil = _a[_i];
-            if (perfil.id == idBloqueado) {
-                perfilBloqueando.bloqueados.push(perfil);
+    //public exibirHashtagsPopulares(repoPostagens: IRepositorioDePostagens): string[] { }
+    RedeSocial.prototype.bloquearPerfil = function (perfilBloqueando, id, user, email) {
+        var perfilBloqueado = this.consultarPerfil(id, user, email);
+        var encontrou = false;
+        if (perfilBloqueado != null) {
+            for (var _i = 0, _a = perfilBloqueando.bloqueados; _i < _a.length; _i++) {
+                var bloqueado = _a[_i];
+                if (perfilBloqueado.id == bloqueado.id) {
+                    encontrou = true;
+                }
+            }
+            if (!encontrou) {
+                perfilBloqueando.bloquear(perfilBloqueado);
+                return true;
             }
         }
+        return false;
+    };
+    RedeSocial.prototype.desbloquearPerfil = function (perfilDesbloqueando, id, user, email) {
+        var perfilDesbloqueado = this.consultarPerfil(id, user, email);
+        var encontrou = false;
+        if (perfilDesbloqueado != null) {
+            for (var _i = 0, _a = perfilDesbloqueando.bloqueados; _i < _a.length; _i++) {
+                var bloqueado = _a[_i];
+                if (perfilDesbloqueado.id == bloqueado.id) {
+                    encontrou = true;
+                }
+            }
+            if (encontrou) {
+                perfilDesbloqueando.desbloquear(perfilDesbloqueado);
+                return true;
+            }
+        }
+        return false;
     };
     RedeSocial.prototype.exibirPostAleatorio = function (repoPostagens) {
         var alcance = repoPostagens.postagens.length;
@@ -148,12 +160,75 @@ var RedeSocial = /** @class */ (function () {
         }
         return perfis;
     };
+    //Não faço ideia de como consertar isso:
     RedeSocial.prototype.exibirPostsHashtag = function (hashtag) {
         var postsEncontrados = this._repoPostagens.postagens.filter(function (post) {
             return (post instanceof postagem_avancada_1.PostagemAvancada) &&
                 (post.existeHashtag(hashtag));
         });
         return postsEncontrados;
+    };
+    //////////////////////////////////////////////////////////  
+    RedeSocial.prototype.seguirPerfil = function (perfilSeguindo, id, user, email) {
+        var perfilSeguido = this.consultarPerfil(id, user, email);
+        var encontrou = false;
+        if (perfilSeguido != null) {
+            for (var _i = 0, _a = perfilSeguido.seguidores; _i < _a.length; _i++) {
+                var seguidor = _a[_i];
+                if (seguidor.id == perfilSeguindo.id) {
+                    encontrou = true;
+                }
+            }
+            if (!encontrou) {
+                perfilSeguindo.seguir(perfilSeguido);
+                return true;
+            }
+        }
+        return false;
+    };
+    RedeSocial.prototype.desseguirPerfil = function (perfilDesseguindo, id, user, email) {
+        var perfilDesseguido = this.consultarPerfil(id, user, email);
+        var encontrou = false;
+        if (perfilDesseguido != null) {
+            for (var _i = 0, _a = perfilDesseguido.seguidores; _i < _a.length; _i++) {
+                var seguidor = _a[_i];
+                if (seguidor.id == perfilDesseguindo.id) {
+                    encontrou = true;
+                }
+            }
+            if (encontrou) {
+                perfilDesseguindo.desseguir(perfilDesseguido);
+                perfilDesseguido.removerSeguidor(perfilDesseguindo);
+                return true;
+            }
+        }
+        return false;
+    };
+    RedeSocial.prototype.exibirSeguidores = function (id, user, email) {
+        var perfil = this.consultarPerfil(id, user, email);
+        var seguidores = [];
+        if (perfil != null) {
+            for (var _i = 0, _a = perfil.seguidores; _i < _a.length; _i++) {
+                var seguidor = _a[_i];
+                seguidores.push(seguidor);
+            }
+        }
+        return seguidores;
+    };
+    RedeSocial.prototype.exibirSeguindo = function (id, user, email) {
+        var perfil = this.consultarPerfil(id, user, email);
+        var seguindo = [];
+        if (perfil != null) {
+            for (var _i = 0, _a = perfil.seguidos; _i < _a.length; _i++) {
+                var seguido = _a[_i];
+                seguindo.push(seguido);
+            }
+        }
+        return seguindo;
+    };
+    RedeSocial.prototype.exibirPostagensDoSeguidor = function (seguidor) {
+        var postagensOrdenadas = seguidor.postagens.sort(function (a, b) { return b.data.getTime() - a.data.getTime(); });
+        return postagensOrdenadas;
     };
     Object.defineProperty(RedeSocial.prototype, "repoPerfis", {
         get: function () {

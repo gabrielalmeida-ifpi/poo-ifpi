@@ -23,6 +23,9 @@ class RedeSocial {
     consultarPerfil(id, user, email, senha) {
         return this._repoPerfis.consultar(id, user, email, senha);
     }
+    logar(user, senha) {
+        return this._repoPerfis.logar(user, senha);
+    }
     incluirPostagem(postagem) {
         let existe = false;
         for (let i = 0; i < this._repoPostagens.postagens.length; i++) {
@@ -111,22 +114,12 @@ class RedeSocial {
         }
         return perfis;
     }
-    //public exibirHashtagsPopulares(repoPostagens: RepositorioDePostagens): string[] { }
+    //public exibirHashtagsPopulares(repoPostagens: IRepositorioDePostagens): string[] { }
     bloquearPerfil(perfilBloqueando, id, user, email) {
         let perfilBloqueado = this.consultarPerfil(id, user, email);
-        let encontrou = false;
         if (perfilBloqueado != null) {
-            for (let bloqueado of perfilBloqueando.bloqueados) {
-                if (perfilBloqueado.id == bloqueado.id) {
-                    encontrou = true;
-                }
-            }
-            if (!encontrou) {
-                perfilBloqueando.bloquear(perfilBloqueado);
-                return true;
-            }
+            perfilBloqueando.bloquear(perfilBloqueado);
         }
-        return false;
     }
     desbloquearPerfil(perfilDesbloqueando, id, user, email) {
         let perfilDesbloqueado = this.consultarPerfil(id, user, email);
@@ -175,34 +168,15 @@ class RedeSocial {
     }
     seguirPerfil(perfilSeguindo, id, user, email) {
         let perfilSeguido = this.consultarPerfil(id, user, email);
-        let encontrou = false;
         if (perfilSeguido != null) {
-            for (let seguidor of perfilSeguido.seguidores) {
-                if (seguidor.id == perfilSeguindo.id) {
-                    encontrou = true;
-                }
-            }
-            if (!encontrou) {
-                perfilSeguindo.seguir(perfilSeguido);
-                return true;
-            }
+            perfilSeguindo.seguir(perfilSeguido);
         }
-        return false;
     }
     desseguirPerfil(perfilDesseguindo, id, user, email) {
         let perfilDesseguido = this.consultarPerfil(id, user, email);
-        let encontrou = false;
         if (perfilDesseguido != null) {
-            for (let seguidor of perfilDesseguido.seguidores) {
-                if (seguidor.id == perfilDesseguindo.id) {
-                    encontrou = true;
-                }
-            }
-            if (encontrou) {
-                perfilDesseguindo.desseguir(perfilDesseguido);
-                perfilDesseguido.removerSeguidor(perfilDesseguindo);
-                return true;
-            }
+            perfilDesseguindo.desseguir(perfilDesseguido);
+            perfilDesseguido.removerSeguidor(perfilDesseguindo);
         }
         return false;
     }

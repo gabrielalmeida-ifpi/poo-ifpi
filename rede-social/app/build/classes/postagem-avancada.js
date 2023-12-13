@@ -27,5 +27,8 @@ class PostagemAvancada extends postagem_1.Postagem {
     get visualizacoesRestantes() {
         return this._visualizacoesRestantes;
     }
+    set hashtags(hashtags) {
+        hashtags = hashtags;
+    }
 }
 exports.PostagemAvancada = PostagemAvancada;

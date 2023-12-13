@@ -1,13 +1,16 @@
-import { Postagem } from "./postagem.js"
-import { Perfil } from "./perfil.js"
-import { PostagemAvancada } from "./postagem-avancada.js"
+import { Postagem } from "./postagem"
+import { Perfil } from "./perfil"
+import { PostagemAvancada } from "./postagem-avancada"
+
+export interface IRepositorioDePostagens {
+    postagens: Postagem[];
+    incluir(postagem: Postagem): void;
+    consultar(id?: number, texto?: string, hashtag?: string, perfil?: Perfil | null): Postagem[];
+}
 
 export class RepositorioDePostagens {
-    private _postagens: Postagem[]
-
-    constructor(postagens: Postagem[]) {
-        this._postagens = postagens
-    }
+    private _postagens: Postagem[] = []
+    private _hashtags: string[] = []
 
     public incluir(postagem: Postagem): void {
         this._postagens.push(postagem)
@@ -16,14 +19,14 @@ export class RepositorioDePostagens {
         }
     }
 
-    public consultar(texto: string = "", hashtag: string = "", perfil: Perfil | null = null,  id: number = 0, ): Postagem[] {
+    public consultar(id?: number, texto?: string, hashtag?: string, perfil: Perfil | null = null): Postagem[] {
         const postagensFiltradas = this._postagens.filter((postagem) => {
-            return (id != 0 && postagem.id == id) ||
-                   (texto != "" && postagem.texto.includes(texto)) ||
+            return (id != undefined && postagem.id == id) ||
+                   (texto != undefined && postagem.texto.includes(texto)) ||
                    (perfil != null && postagem.perfil == perfil)
         })
 
-        if (hashtag != "") {
+        if (hashtag != undefined) {
             const postagensComHashtag = postagensFiltradas.filter((postagem) => {
                 return postagem instanceof PostagemAvancada && postagem.hashtags.includes(hashtag)
             })
@@ -36,6 +39,18 @@ export class RepositorioDePostagens {
     
     public get postagens() : Postagem[] {
         return this._postagens
+    }
+
+    public set postagens(postagens: Postagem[]) {
+        this._postagens = postagens
+    }
+
+    public get hashtags() : string[] {
+        return this._hashtags
+    }
+
+    public set hashtags(hashtags: string[]) {
+        this._hashtags = hashtags
     }
     
 }

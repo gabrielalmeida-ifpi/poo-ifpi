@@ -37,6 +37,7 @@ class App {
             \n`);
     }
     acessarApp() {
+        //carregar()
         let opcao = 0;
         this.titulo();
         console.log(`
@@ -45,19 +46,26 @@ class App {
             2. Cadastrar-se
             
             0. Sair\n`);
-        opcao = +input("            Opcao: ");
-        switch (opcao) {
-            case 1:
-                this.login();
-                break;
-            case 2:
-                this.cadastrarPerfil();
-                break;
-            case 0:
-                console.log("            Aplicação encerrada");
-                break;
-            default:
-                this.acessarApp();
+        try {
+            opcao = +input("            Opcao: ");
+            switch (opcao) {
+                case 1:
+                    this.login();
+                    break;
+                case 2:
+                    this.cadastrarPerfil();
+                    break;
+                case 0:
+                    //salvar()
+                    break;
+                default:
+                    this.acessarApp();
+                    break;
+            }
+        }
+        catch (e) {
+            console.log(e.message);
+            this.acessarApp();
         }
     }
     login() {
@@ -66,7 +74,7 @@ class App {
         ❖ LOGIN ❖\n`);
         let user = input("          User: ");
         let senha = input("          Senha: ");
-        let perfil = this._redeSocial.consultarPerfil(undefined, user, undefined, senha);
+        let perfil = this._redeSocial.logar(user, senha);
         if (perfil) {
             perfilLogado = perfil;
             isLogado = true;
@@ -88,9 +96,8 @@ class App {
         Use os atalhos para busca:
         
         - Para pesquisar perfis, utilize (@) antes do usuario
-        - Para pesquisar postagens por hahstags, utilize (#) antes da hahstag
-        - Para pesquisar postagens por conteudo, apenas digite o texto`);
-        let busca = input("/n          | ");
+        - Para pesquisar postagens por hahstags, utilize (#) antes da hahstag\n`);
+        let busca = input("          | ");
         if (/^@/.test(busca)) {
             let user = busca.substring(1);
             let perfil = this._redeSocial.consultarPerfil(undefined, user);
@@ -145,70 +152,107 @@ class App {
             16. Consultar Postagens (Perfil)
             17. Curtir
             18. Descurtir
+            19. Exibir Hashtags Populares
 
             ❖ AVANCADO ❖\n
             0. Sair\n`);
-        opcao = +input("Opcao: ");
-        switch (opcao) {
-            case 1:
-                this.feed();
-                break;
-            case 2:
-                this.consultar();
-                break;
-            case 3:
-                this.criarPostagem();
-                break;
-            case 4:
-                this.exibirPerfisPopulares();
-                break;
-            case 5:
-                this.exibirPostsPopulares();
-                break;
-            case 6:
-                this.bloquearPerfil();
-                break;
-            case 7:
-                this.exibirBloqueados();
-                break;
-            case 8:
-                this.desbloquearPerfil();
-                break;
-            case 9:
-                this.exibirPerfisAtivos();
-                break;
-            case 10:
-                this.seguirPerfil();
-                break;
-            case 11:
-                this.exibirSeguidores();
-                break;
-            case 12:
-                this.exibirSeguindo();
-                break;
-            case 13:
-                this.desseguirPerfil();
-                break;
-            case 14:
-                this.consultarPerfil();
-            case 15:
-                this.consultarPostId();
-                break;
-            case 16:
-                this.consultarPorPerfil();
-                break;
-            case 17:
-                this.curtir();
-                break;
-            case 18:
-                this.descurtir();
-                break;
-            case 0:
-                this.acessarApp();
-                break;
-            default:
-                this.menu();
+        try {
+            opcao = +input("Opcao: ");
+            switch (opcao) {
+                case 1:
+                    this.feed();
+                    break;
+                case 2:
+                    this.consultar();
+                    break;
+                case 3:
+                    this.criarPostagem();
+                    break;
+                case 4:
+                    this.exibirPerfisPopulares();
+                    break;
+                case 5:
+                    this.exibirPostsPopulares();
+                    break;
+                case 6:
+                    this.bloquearPerfil();
+                    break;
+                case 7:
+                    this.exibirBloqueados();
+                    break;
+                case 8:
+                    this.desbloquearPerfil();
+                    break;
+                case 9:
+                    this.exibirPerfisAtivos();
+                    break;
+                case 10:
+                    this.seguirPerfil();
+                    break;
+                case 11:
+                    this.exibirSeguidores();
+                    break;
+                case 12:
+                    this.exibirSeguindo();
+                    break;
+                case 13:
+                    this.desseguirPerfil();
+                    break;
+                case 14:
+                    this.consultarPerfil();
+                    break;
+                case 15:
+                    this.consultarPostId();
+                    break;
+                case 16:
+                    this.consultarPorPerfil();
+                    break;
+                case 17:
+                    this.curtir();
+                    break;
+                case 18:
+                    this.descurtir();
+                    break;
+                case 19:
+                    this.exibirHashtagsPopulares();
+                    break;
+                case 0:
+                    this.acessarApp();
+                    break;
+                default:
+                    this.menu();
+                    break;
+            }
         }
+        catch (e) {
+            console.log(e.message);
+            input("\n          Pressione Enter para retornar ao menu...");
+            this.menu();
+        }
+    }
+    exibirPostsPopulares() {
+        this.titulo();
+        console.log(`
+        ❖ POSTS POPULARES ❖\n`);
+        let postsPopulares = redeSocial.exibirPostsPopulares(redeSocial.repoPostagens);
+        for (let post of postsPopulares) {
+            console.log(`
+            \x1b[1m@${post.perfil.user}\x1b[0m\n
+            ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
+            ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
+            let hashtags = "";
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
+                for (let hash of post.hashtags) {
+                    hashtags += "#" + hash + " ";
+                }
+                console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
+                this._redeSocial.decrementarVisualizacoes(post);
+            }
+            console.log(`
+            ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
+        }
+        input("\nPressione Enter para retornar ao menu...");
+        this.menu();
     }
     consultarHashtag(hash) {
         this.titulo();
@@ -272,21 +316,26 @@ class App {
         ❖ CONSULTAR POST POR ID ❖\n`);
         let id = +input("      Id: ");
         let postagem = this._redeSocial.consultarPostagem(id);
-        let post = postagem[0];
-        console.log(`
+        if (postagem[0] != undefined) {
+            let post = postagem[0];
+            console.log(`
             \x1b[1m@${post.perfil.user}\x1b[0m\n
             ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
             ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
-        let hashtags = "";
-        if (post instanceof postagem_avancada_1.PostagemAvancada) {
-            for (let hash of post.hashtags) {
-                hashtags += "#" + hash + " ";
+            let hashtags = "";
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
+                for (let hash of post.hashtags) {
+                    hashtags += "#" + hash + " ";
+                }
+                console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
+                this._redeSocial.decrementarVisualizacoes(post);
             }
-            console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
-            this._redeSocial.decrementarVisualizacoes(post);
-        }
-        console.log(`
+            console.log(`
             ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
+        }
+        else {
+            console.log("Postagem inexistente.");
+        }
         input("\nPressione Enter para retornar ao menu...");
         this.menu();
     }
@@ -398,23 +447,28 @@ class App {
         ❖ CURTIR POST ❖\n`);
         let id = +input("      Id: ");
         let postagem = this._redeSocial.consultarPostagem(id);
-        let post = postagem[0];
-        this._redeSocial.curtir(post.id);
-        console.log('Você curtiu o seguinte post:');
-        console.log(`
-            \x1b[1m@${post.perfil.user}\x1b[0m\n
-            ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
-            ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
-        let hashtags = "";
-        if (post instanceof postagem_avancada_1.PostagemAvancada) {
-            for (let hash of post.hashtags) {
-                hashtags += "#" + hash + " ";
+        if (postagem[0] != null) {
+            let post = postagem[0];
+            this._redeSocial.curtir(post.id);
+            console.log('Você curtiu o seguinte post:');
+            console.log(`
+                \x1b[1m@${post.perfil.user}\x1b[0m\n
+                ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
+                ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
+            let hashtags = "";
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
+                for (let hash of post.hashtags) {
+                    hashtags += "#" + hash + " ";
+                }
+                console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
+                this._redeSocial.decrementarVisualizacoes(post);
             }
-            console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
-            this._redeSocial.decrementarVisualizacoes(post);
+            console.log(`
+                ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
         }
-        console.log(`
-            ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
+        else {
+            console.log("Postagem inexistente.");
+        }
         input("\nPressione Enter para retornar ao menu...");
         this.menu();
     }
@@ -424,23 +478,28 @@ class App {
         ❖ DESCURTIR POST ❖\n`);
         let id = +input("      Id: ");
         let postagem = this._redeSocial.consultarPostagem(id);
-        let post = postagem[0];
-        this._redeSocial.descurtir(post.id);
-        console.log('Você descurtiu o seguinte post:');
-        console.log(`
-            \x1b[1m@${post.perfil.user}\x1b[0m\n
-            ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
-            ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
-        let hashtags = "";
-        if (post instanceof postagem_avancada_1.PostagemAvancada) {
-            for (let hash of post.hashtags) {
-                hashtags += "#" + hash + " ";
+        if (postagem[0] != undefined) {
+            let post = postagem[0];
+            this._redeSocial.descurtir(post.id);
+            console.log('Você descurtiu o seguinte post:');
+            console.log(`
+                \x1b[1m@${post.perfil.user}\x1b[0m\n
+                ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
+                ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
+            let hashtags = "";
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
+                for (let hash of post.hashtags) {
+                    hashtags += "#" + hash + " ";
+                }
+                console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
+                this._redeSocial.decrementarVisualizacoes(post);
             }
-            console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
-            this._redeSocial.decrementarVisualizacoes(post);
+            console.log(`
+                ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
         }
-        console.log(`
-            ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
+        else {
+            console.log("Postagem inexistente.");
+        }
         input("\nPressione Enter para retornar ao menu...");
         this.menu();
     }
@@ -452,30 +511,6 @@ class App {
         for (let perfil of perfisPopulares) {
             console.log(`ID: ${perfil.id}`);
             console.log(`User: ${perfil.user}`);
-        }
-        input("\nPressione Enter para retornar ao menu...");
-        this.menu();
-    }
-    exibirPostsPopulares() {
-        this.titulo();
-        console.log(`
-        ❖ POSTS POPULARES ❖\n`);
-        let postsPopulares = redeSocial.exibirPostsPopulares(redeSocial.repoPostagens);
-        for (let post of postsPopulares) {
-            console.log(`
-            \x1b[1m@${post.perfil.user}\x1b[0m\n
-            ${post.data.toLocaleString('pt-BR', opcoesDeFormato)}\n
-            ${this.quebrarTextoEmLinhas(post.texto, 50)}`);
-            let hashtags = "";
-            if (post instanceof postagem_avancada_1.PostagemAvancada) {
-                for (let hash of post.hashtags) {
-                    hashtags += "#" + hash + " ";
-                }
-                console.log(`\n            \x1b[94m${hashtags}\x1b[0m`);
-                this._redeSocial.decrementarVisualizacoes(post);
-            }
-            console.log(`
-            ▲ ${post.curtidas}    ▼ ${post.descurtidas}\n`);
         }
         input("\nPressione Enter para retornar ao menu...");
         this.menu();
@@ -581,7 +616,7 @@ class App {
         this.titulo();
         console.log(`
         ❖ SEGUIDORES ❖\n`);
-        for (let seguido of perfilLogado.seguidos) {
+        for (let seguido of perfilLogado.seguidores) {
             console.log(`
             Seguidor: ${seguido.user}
                 `);
@@ -659,7 +694,7 @@ class App {
         ❖ PERFIS QUE VOCE SEGUE ❖\n`);
         for (let seguido of perfilLogado.seguidos) {
             console.log(`
-            Seguido: ${seguido.user}
+            Seguidor: ${seguido.user}
                 `);
         }
         console.log("       Preencha o usuario do seu seguido para acessar as postagens.\n");
@@ -716,6 +751,52 @@ class App {
         linhas.push(linhaAtual);
         return linhas.join('\n            ');
     }
+    retornarHashtags() {
+        let postagens = this._redeSocial.repoPostagens.postagens;
+        let hashtags = "";
+        for (let i = 0; i < postagens.length; i++) {
+            let post = postagens[i];
+            if (post instanceof postagem_avancada_1.PostagemAvancada) {
+                for (let hash of post.hashtags) {
+                    hashtags += hash + " ";
+                }
+            }
+        }
+        let hashtagsArray = hashtags.split(" ");
+        return hashtagsArray;
+    }
+    get redeSocial() {
+        return this._redeSocial;
+    }
+    exibirHashtagsPopulares() {
+        this.titulo();
+        console.log(`
+        ❖ HASHTAGS POPULARES ❖\n`);
+        let hashtags = this.retornarHashtags();
+        let hashtagPopular = "";
+        let hashtagsPopulares = [];
+        let contador = 0;
+        console.log(hashtags);
+        for (let hash of hashtags) {
+            hashtagPopular = hash;
+            for (let hashtag of hashtags) {
+                if (hashtag == hashtagPopular && hashtag != " ") {
+                    contador++;
+                }
+            }
+            if (contador >= 5) {
+                if (!hashtagsPopulares.includes(hashtagPopular)) {
+                    hashtagsPopulares.push(hashtagPopular);
+                }
+                contador = 0;
+            }
+        }
+        for (let hash of hashtagsPopulares) {
+            console.log(`#${hash}`);
+        }
+        input("\nPressione Enter para retornar ao menu...");
+        this.menu();
+    }
 }
 let redeSocial = new rede_social_1.RedeSocial(new repositorio_perfis_1.RepositorioDePerfis, new repositorio_postagens_1.RepositorioDePostagens);
 let app = new App(redeSocial);
@@ -725,3 +806,71 @@ if (isLogado) {
 else {
     app.acessarApp();
 }
+// // Armazenamento
+// function salvarPerfisTxt(caminhoArquivo: string, perfis: Perfil[]): void {
+//     const dadosPerfisTxt = perfis.map(perfil => {
+//         return `${perfil['_id']},${perfil['_user']},${perfil['_email']},${perfil['_senha']}`
+//     }).join('\n')
+//     salvarDadosTxt(caminhoArquivo, dadosPerfisTxt)
+// }
+// function salvarPostagensTxt(caminhoArquivo: string, postagens: (Postagem | PostagemAvancada)[]): void {
+//     const dadosPostagensTxt = postagens.map(postagem => {
+//         if ('_hashtags' in postagem) {
+//             return `${postagem['_id']},${postagem['_texto']},${postagem['_curtidas']},${postagem['_descurtidas']},${postagem['_data']},${postagem['_perfil']['_user']},${(postagem as PostagemAvancada)['_hashtags'].join(',')},${(postagem as PostagemAvancada)['_visualizacoesRestantes']},PostagemAvancada`;
+//         } else {
+//             return `${postagem['_id']},${postagem['_texto']},${postagem['_curtidas']},${postagem['_descurtidas']},${postagem['_data']},${postagem['_perfil']['_user']},Postagem`;
+//         }
+//     }).join('\n');
+//     salvarDadosTxt(caminhoArquivo, dadosPostagensTxt);
+// }
+// function salvarDadosTxt(caminhoArquivo: string, dados: string): void {
+//     try {
+//         fs.writeFileSync(caminhoArquivo, dados, 'utf-8')
+//     } catch (erro) {
+//     }
+// }
+// function salvar(): void {
+//     salvarPerfisTxt('/home/rsmwall/Github/ifpi-ads-course/ads-2023.2/programacao-orientada-objetos/avaliacoes/rede-social/app/docs/perfis.txt', app.redeSocial.repoPerfis.perfis)
+//     salvarPostagensTxt('/home/rsmwall/Github/ifpi-ads-course/ads-2023.2/programacao-orientada-objetos/avaliacoes/rede-social/app/docs/postagens.txt', app.redeSocial.repoPostagens.postagens)
+// }
+// function lerDadosTxt(caminhoArquivo: string): string[] {
+//     try {
+//         const dados = fs.readFileSync(caminhoArquivo, 'utf-8')
+//         return dados.split('\n').map(line => line.trim()).filter(Boolean)
+//     } catch (erro) {
+//         return []
+//     }
+// }
+// function carregarPerfis(caminhoArquivo: string): Perfil[] {
+//     const dadosPerfis = lerDadosTxt(caminhoArquivo)
+//     const perfis: Perfil[] = []
+//     for (const linha of dadosPerfis) {
+//         const [id, user, email, senha] = linha.split(',')
+//         const perfil = new Perfil(parseInt(id), user, email, senha)
+//         app.redeSocial.inserirPerfil(perfil)
+//     }
+//     return perfis
+// }
+// function carregarPostagens(caminhoArquivo: string): (Postagem | PostagemAvancada)[] {
+//     const dadosPostagens = lerDadosTxt(caminhoArquivo)
+//     const postagens: (Postagem | PostagemAvancada)[] = []
+//     for (const linha of dadosPostagens) {
+//         const [id, texto, curtidas, descurtidas, data, perfilUser, ...resto] = linha.split(',')
+//         const perfil = new Perfil(0, perfilUser, '', '')
+//         const postagem = new Postagem(parseInt(id), texto, parseInt(curtidas), parseInt(descurtidas), new Date(data), perfil)
+//         if (resto.length > 0) {
+//             const hashtags = resto.slice(0, -1)
+//             const visualizacoesRestantes = parseInt(resto[resto.length - 1])
+//             const postagemAvancada = new PostagemAvancada(postagem.id, postagem.texto, postagem.curtidas, postagem.descurtidas, postagem.data, postagem.perfil, visualizacoesRestantes)
+//             postagemAvancada.hashtags = hashtags
+//             app.redeSocial.inserirPostagem(postagemAvancada)
+//         } else {
+//             app.redeSocial.inserirPostagem(postagem)
+//         }
+//     }
+//     return postagens
+// }
+// function carregar(): void {
+//     carregarPerfis('/home/rsmwall/Github/ifpi-ads-course/ads-2023.2/programacao-orientada-objetos/avaliacoes/rede-social/app/docs/perfis.txt')
+//     carregarPostagens('/home/rsmwall/Github/ifpi-ads-course/ads-2023.2/programacao-orientada-objetos/avaliacoes/rede-social/app/docs/postagens.txt')
+// }

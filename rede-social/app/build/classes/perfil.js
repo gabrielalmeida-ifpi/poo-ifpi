@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Perfil = void 0;
+const error_1 = require("./error");
 class Perfil {
     constructor(id, user, email, senha) {
         this._postagens = [];
@@ -13,18 +14,42 @@ class Perfil {
         this._email = email;
         this._senha = senha;
     }
+    // alterado
     bloquear(perfilBloqueado) {
-        this._bloqueados.push(perfilBloqueado);
+        const perfilAchado = this._bloqueados.find((perfil) => {
+            return (perfil == perfilBloqueado);
+        });
+        if (!perfilAchado) {
+            this._bloqueados.push(perfilBloqueado);
+        }
+        else {
+            throw new error_1.BloquearError("Peril ja bloqueado");
+        }
     }
+    // alterado
     seguir(perfilSeguido) {
-        perfilSeguido.seguidores.push(this);
-        this._seguidos.push(perfilSeguido);
+        const perfilAchado = this._seguidos.find((perfil) => {
+            return (perfil == perfilSeguido);
+        });
+        if (!perfilAchado) {
+            perfilSeguido.seguidores.push(this);
+            this._seguidos.push(perfilSeguido);
+        }
+        else {
+            throw new error_1.BloquearError("Peril ja seguido");
+        }
     }
+    //alterado
     removerSeguidor(seguidorRemovido) {
         for (let seguidor of this._seguidores) {
-            if (seguidorRemovido.id == seguidor._id) {
-                let indiceRemovido = this._seguidores.indexOf(seguidor);
-                this._seguidores.splice(indiceRemovido, 1);
+            try {
+                if (seguidorRemovido.id == seguidor._id) {
+                    let indiceRemovido = this._seguidores.indexOf(seguidor);
+                    this._seguidores.splice(indiceRemovido, 1);
+                }
+            }
+            catch (error) {
+                console.log("Perfil nao eh seguidor");
             }
         }
     }

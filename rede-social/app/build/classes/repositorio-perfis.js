@@ -17,8 +17,17 @@ class RepositorioDePerfis {
         });
         return perfilEncontrado || null;
     }
+    logar(user, senha) {
+        const perfilLogado = this._perfis.find((perfil) => {
+            return (perfil.user == user) && (perfil.senha == senha);
+        });
+        return perfilLogado || null;
+    }
     get perfis() {
         return this._perfis;
+    }
+    set perfis(perfis) {
+        this._perfis = perfis;
     }
 }
 exports.RepositorioDePerfis = RepositorioDePerfis;

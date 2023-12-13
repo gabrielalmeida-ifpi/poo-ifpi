@@ -5,6 +5,7 @@ const postagem_avancada_1 = require("./postagem-avancada");
 class RepositorioDePostagens {
     constructor() {
         this._postagens = [];
+        this._hashtags = [];
     }
     incluir(postagem) {
         this._postagens.push(postagem);
@@ -28,6 +29,15 @@ class RepositorioDePostagens {
     }
     get postagens() {
         return this._postagens;
+    }
+    set postagens(postagens) {
+        this._postagens = postagens;
+    }
+    get hashtags() {
+        return this._hashtags;
+    }
+    set hashtags(hashtags) {
+        this._hashtags = hashtags;
     }
 }
 exports.RepositorioDePostagens = RepositorioDePostagens;
